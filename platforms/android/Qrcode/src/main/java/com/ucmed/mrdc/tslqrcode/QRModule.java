@@ -5,10 +5,10 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.weexextra.ModuleAdapterCallBack;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
+import com.weex.weexextra.ModuleAdapterCallBack;
 
 
 import static com.taobao.weex.adapter.URIAdapter.BUNDLE;

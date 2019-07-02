@@ -14,8 +14,6 @@ import com.google.zxing.client.result.ParsedResult;
 import com.mylhyl.zxing.scanner.OnScannerCompletionListener;
 import com.mylhyl.zxing.scanner.ScannerView;
 import com.mylhyl.zxing.scanner.decode.QRDecode;
-import com.ucmed.mrdc.teslacore.module.TSLModuleAdapterManager;
-import com.ucmed.teslah5nativebrigelib.TSLCallAdapterInterface;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -73,31 +71,31 @@ public class TSLScanViewActivity extends Activity implements View.OnClickListene
     }
 
     private void pickImage() {
-        TSLModuleAdapterManager.getInstance().getTslImageAdapter().chooseImage(this, 1, null, null, Arrays.asList("album"),1, new TSLCallAdapterInterface() {
-            @Override
-            public void success(String message) {
-
-            }
-
-            @Override
-            public void success(Map<String, Object> map) {
-                if (map.size() > 0 && map.get("tempFilePaths") != null) {
-                    List<String> paths = (List<String>) map.get("tempFilePaths");
-                    if (paths.size() > 0)
-                        parseImageForCode(paths.get(0));
-                }
-            }
-
-            @Override
-            public void error(String message) {
-
-            }
-
-            @Override
-            public void error(Map<String, Object> map) {
-
-            }
-        });
+//        TSLModuleAdapterManager.getInstance().getTslImageAdapter().chooseImage(this, 1, null, null, Arrays.asList("album"),1, new TSLCallAdapterInterface() {
+//            @Override
+//            public void success(String message) {
+//
+//            }
+//
+//            @Override
+//            public void success(Map<String, Object> map) {
+//                if (map.size() > 0 && map.get("tempFilePaths") != null) {
+//                    List<String> paths = (List<String>) map.get("tempFilePaths");
+//                    if (paths.size() > 0)
+//                        parseImageForCode(paths.get(0));
+//                }
+//            }
+//
+//            @Override
+//            public void error(String message) {
+//
+//            }
+//
+//            @Override
+//            public void error(Map<String, Object> map) {
+//
+//            }
+//        });
     }
 
     private void parseImageForCode(String path) {
