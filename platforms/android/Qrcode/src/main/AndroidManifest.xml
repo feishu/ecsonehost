@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.ucmed.mrdc.tslqrcode">
+    <application>
+        <activity android:name=".TSLScanViewActivity" />
+        <provider
+            android:name="com.ucmed.mrdc.tslqrcode.QRProvider"
+            android:authorities="${applicationId}.TeslaQRProvider"
+            android:enabled="true"
+            android:exported="false" />
+    </application>
+</manifest>

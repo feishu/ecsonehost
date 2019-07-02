@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <ViewStub android:layout_width="match_parent" android:layout_height="match_parent"
+              android:id="@+id/piechart"
+              android:layout="@layout/viewstub_piechart" />
+    <ViewStub android:layout_width="match_parent" android:layout_height="match_parent"
+              android:id="@+id/barchart"
+              android:layout="@layout/viewstub_barchart"/>
+    <ViewStub android:layout_width="match_parent" android:layout_height="match_parent"
+              android:id="@+id/linechart"
+              android:layout="@layout/viewstub_linechart"/>
+</LinearLayout>
