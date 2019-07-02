@@ -67,4 +67,6 @@ typings/
 
 deploy
 
-platforms
+platforms/ios
+platforms/android/app/release
+platforms/android/app/src/main/assets
