@@ -1,7 +1,10 @@
 package com.weexbox.example
 
+import android.Manifest.permission.READ_PHONE_STATE
 import android.os.Bundle
 import com.weexbox.core.controller.WBBaseActivity
+import com.yanzhenjie.permission.AndPermission
+
 
 /**
  * Author: Mario
@@ -17,5 +20,8 @@ class LaunchActivity : WBBaseActivity() {
         setContentView(R.layout.activity_launch)
         val launchFragment = LaunchFragment()
         supportFragmentManager.beginTransaction().replace(R.id.launchFragment, launchFragment).commit()
+
+        AndPermission.with(this).runtime().permission(READ_PHONE_STATE).onDenied({ permissions -> }).onGranted({ permissions -> }).start()
+
     }
 }
