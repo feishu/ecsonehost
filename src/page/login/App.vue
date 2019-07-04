@@ -11,7 +11,7 @@
           <input class="phone"/>
       </div>
       <div class="form-item">
-        <text class="form-label">验证码{{deviceInfo.imei}}</text>
+        <text class="form-label">验证码</text>
         <input class="code" return-key-type="注册"/>
         <text class="btn btn-getcode">获取验证码</text>
       </div>
@@ -79,7 +79,6 @@ import loginlogo from '../../../static/img/login_logo.png'
 import { themeColor } from '../../utils/config'
 import { router } from '../../utils/native'
 
-const utility = weex.requireModule('utility')
 const picker = weex.requireModule('picker')
 const navigator = weex.requireModule('wb-navigator')
 
@@ -99,7 +98,6 @@ export default {
       formshow: false,
       changfangselectval: '',
       changfangselector: true,
-      deviceInfo: {},
       changfangdata: [{
         label: '杭州厂房',
         value: '2013',
@@ -131,7 +129,6 @@ export default {
       text: '',
       color: '3d3d3d',
     }], () => {})
-    utility.getDeviceInfo((res) => { this.deviceInfo = res })
   },
   methods: {
     pick() {
