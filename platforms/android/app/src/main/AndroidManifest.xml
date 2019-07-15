@@ -10,7 +10,7 @@
         android:label="EcsOne"
         android:largeHeap="true"
         android:supportsRtl="true"
-        android:theme="@style/NoActionbarTheme"
+        android:theme="@style/AppTheme.NoActionBar"
         tools:replace="android:allowBackup,android:theme">
 
         <activity

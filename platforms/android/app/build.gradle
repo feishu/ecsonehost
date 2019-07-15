@@ -43,5 +43,7 @@ dependencies {
     implementation project(':WeexChartLib')
     implementation project(':weexextra')
     implementation project(':Qrcode')
+    implementation project(':NFCModule')
+    implementation project(':WEImage')
 }
 
