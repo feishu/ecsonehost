@@ -24,8 +24,10 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.mylhyl.zxing.scanner.OnScannerCompletionListener;
 import com.mylhyl.zxing.scanner.decode.QRDecode;
 import com.weex.weexextra.ModuleAdapterCallBack;
-import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.PermissionListener;
+import com.yanzhenjie.permission.Rationale;
+import com.yanzhenjie.permission.RationaleListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -91,21 +93,25 @@ public class QRAdapterIml {
 
     public void scanCode(final Context context, final ModuleAdapterCallBack callbackInterface) {
         this.callbackInterface = callbackInterface;
-        AndPermission.with(context).runtime().permission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> deniedPermissions) {
-                        if (callbackInterface != null)
-                            callbackInterface.error("scanCode:fail Permissions denied");
-                    }
-                }).onGranted(new Action<List<String>>() {
+        AndPermission.with(context).permission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE).rationale(new RationaleListener() {
             @Override
-            public void onAction(List<String> grantPermissions) {
+            public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
+                AndPermission.rationaleDialog(context, rationale).show();
+            }
+        }).callback(new PermissionListener() {
+            @Override
+            public void onSucceed(int requestCode, @NonNull List<String> grantPermissions) {
                 if (!EventBus.getDefault().isRegistered(QRAdapterIml.this)) {
                     EventBus.getDefault().register(QRAdapterIml.this);
                 }
                 Intent intent = new Intent(context, TSLScanViewActivity.class);
                 context.startActivity(intent);
+            }
+
+            @Override
+            public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+                if (callbackInterface != null)
+                    callbackInterface.error("scanCode:fail Permissions denied");
             }
         }).start();
     }

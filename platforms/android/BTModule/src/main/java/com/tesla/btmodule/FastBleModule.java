@@ -3,6 +3,7 @@ package com.tesla.btmodule;
 import android.Manifest;
 import android.bluetooth.BluetoothGatt;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
@@ -19,8 +20,10 @@ import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
 import com.weex.weexextra.ModuleAdapterCallBack;
-import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.PermissionListener;
+import com.yanzhenjie.permission.Rationale;
+import com.yanzhenjie.permission.RationaleListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,16 +60,15 @@ public class FastBleModule extends WXModule {
     public void openBluetoothAdapter(final JSCallback success, final JSCallback failure) {
         if (pairedDevices == null) pairedDevices = new ArrayList<>();
 
-        AndPermission.with(mWXSDKInstance.getContext()).runtime().permission(Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN/*,Manifest.permission.BLUETOOTH_PRIVILEGED*/
-                , Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> deniedPermissions) {
-                        failure.invoke(deniedPermissions);
-                    }
-                }).onGranted(new Action<List<String>>() {
+        AndPermission.with(mWXSDKInstance.getContext()).permission(Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN/*,Manifest.permission.BLUETOOTH_PRIVILEGED*/
+                , Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).rationale(new RationaleListener() {
             @Override
-            public void onAction(List<String> grantPermissions) {
+            public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
+                AndPermission.rationaleDialog(mWXSDKInstance.getContext(), rationale).show();
+            }
+        }).callback(new PermissionListener() {
+            @Override
+            public void onSucceed(int requestCode, @NonNull List<String> grantPermissions) {
                 if (!BleManager.getInstance().isSupportBle()) {
                     failure.invoke(false);
                 }
@@ -85,6 +87,11 @@ public class FastBleModule extends WXModule {
                 }
 
                 success.invoke(true);
+            }
+
+            @Override
+            public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+                failure.invoke(deniedPermissions);
             }
         }).start();
 

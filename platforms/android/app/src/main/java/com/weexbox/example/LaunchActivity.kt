@@ -2,8 +2,13 @@ package com.weexbox.example
 
 import android.Manifest.permission.READ_PHONE_STATE
 import android.os.Bundle
+import com.taobao.weex.utils.WXLogUtils
 import com.weexbox.core.controller.WBBaseActivity
+import com.weexbox.core.util.ToastUtil
 import com.yanzhenjie.permission.AndPermission
+import com.yanzhenjie.permission.PermissionListener
+import com.yanzhenjie.permission.Rationale
+import com.yanzhenjie.permission.RationaleListener
 
 
 /**
@@ -19,9 +24,20 @@ class LaunchActivity : WBBaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launch)
         val launchFragment = LaunchFragment()
-        supportFragmentManager.beginTransaction().replace(R.id.launchFragment, launchFragment).commit()
 
-        AndPermission.with(this).runtime().permission(READ_PHONE_STATE).onDenied({ permissions -> }).onGranted({ permissions -> }).start()
+
+        AndPermission.with(this).requestCode(100).permission(READ_PHONE_STATE).rationale { requestCode, rationale ->
+            AndPermission.rationaleDialog(this, rationale).show()
+        }.callback(object : PermissionListener {
+            override fun onSucceed(requestCode: Int, grantPermissions: List<String>) {
+                supportFragmentManager.beginTransaction().replace(R.id.launchFragment, launchFragment).commit()
+            }
+
+            override fun onFailed(requestCode: Int, deniedPermissions: List<String>) {
+                WXLogUtils.w("AndPermission,onFailed")
+                ToastUtil.showLongToast(this@LaunchActivity,"Permission request Failed")
+            }
+        }).start()
 
     }
 }

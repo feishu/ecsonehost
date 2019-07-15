@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -22,8 +23,10 @@ import com.taobao.weex.common.WXModule;
 import com.taobao.weex.utils.WXLogUtils;
 import com.weex.weexextra.ModuleAdapterCallBack;
 import com.weex.weexextra.WEObserver;
-import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.PermissionListener;
+import com.yanzhenjie.permission.Rationale;
+import com.yanzhenjie.permission.RationaleListener;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -151,34 +154,39 @@ public class BlueToothModule extends WXModule {
     public void openBluetoothAdapter(final JSCallback success, final JSCallback failure) {
         if (pairedDevices == null) pairedDevices = new ArrayList<>();
 
-        AndPermission.with(mWXSDKInstance.getContext()).runtime().permission(Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN/*,Manifest.permission.BLUETOOTH_PRIVILEGED*/
-                , Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> deniedPermissions) {
-                        failure.invoke(deniedPermissions);
-                    }
-                }).onGranted(new Action<List<String>>() {
+        AndPermission.with(mWXSDKInstance.getContext()).permission(Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN/*,Manifest.permission.BLUETOOTH_PRIVILEGED*/
+                , Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).rationale(new RationaleListener() {
             @Override
-            public void onAction(List<String> grantPermissions) {
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    mBtAdapter = BluetoothAdapter.getDefaultAdapter();
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                    final BluetoothManager bluetoothManager = (BluetoothManager) mWXSDKInstance.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
-                    mBtAdapter = bluetoothManager.getAdapter();
-                }
-
-                if (mBtAdapter != null) {
-                    if (!mBtAdapter.isEnabled()) {
-                        mBtAdapter.enable();
-                    }
-                }
-
-                setDiscoverableTimeout(3000);
-
-                success.invoke(mBtAdapter.isEnabled());
+            public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
+                AndPermission.rationaleDialog(mWXSDKInstance.getContext(), rationale).show();
             }
-        }).start();
+        }).callback(new PermissionListener() {
+                        @Override
+                        public void onSucceed(int requestCode, @NonNull List<String> grantPermissions) {
+                            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                                mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                                final BluetoothManager bluetoothManager = (BluetoothManager) mWXSDKInstance.getContext().getSystemService(Context.BLUETOOTH_SERVICE);
+                                mBtAdapter = bluetoothManager.getAdapter();
+                            }
+
+                            if (mBtAdapter != null) {
+                                if (!mBtAdapter.isEnabled()) {
+                                    mBtAdapter.enable();
+                                }
+                            }
+
+                            setDiscoverableTimeout(3000);
+
+                            success.invoke(mBtAdapter.isEnabled());
+                        }
+
+                        @Override
+                        public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+                            failure.invoke(deniedPermissions);
+                        }
+                    }
+        ).start();
     }
 
     @JSMethod(uiThread = false)
