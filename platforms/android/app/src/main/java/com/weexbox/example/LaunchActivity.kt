@@ -2,6 +2,7 @@ package com.weexbox.example
 
 import android.Manifest.permission.READ_PHONE_STATE
 import android.os.Bundle
+import android.view.View
 import com.taobao.weex.utils.WXLogUtils
 import com.weexbox.core.controller.WBBaseActivity
 import com.weexbox.core.util.ToastUtil
@@ -24,7 +25,8 @@ class LaunchActivity : WBBaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launch)
         val launchFragment = LaunchFragment()
-
+        getActionbar().visibility = View.GONE
+        hideStatusbarLayoutBackground()
 
         AndPermission.with(this).requestCode(100).permission(READ_PHONE_STATE).rationale { requestCode, rationale ->
             AndPermission.rationaleDialog(this, rationale).show()
