@@ -1,1 +1,1 @@
-include ':app', ':weexextra', ':WeexChartLib', ':BTModule', ':Qrcode', ':NFCModule', ':WEImage'
+include ':app', ':weexextra', ':WeexChartLib', ':BTModule', ':Qrcode', ':NFCModule', ':WEImage', ':TslNet'
