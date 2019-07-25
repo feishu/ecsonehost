@@ -45,5 +45,6 @@ dependencies {
     implementation project(':Qrcode')
     implementation project(':NFCModule')
     implementation project(':WEImage')
+    implementation project(':TslNet')
 }
 

@@ -33,11 +33,13 @@ class LaunchFragment : WBBaseFragment() {
             when (state) {
                 UpdateManager.UpdateState.Unzip -> {
                     // 解压
-                    (activity as LaunchActivity).loadDialogHelper.showProgressWithText(activity, "解压中", progress)
+                    Thread.sleep(50)
+                    (activity as LaunchActivity).loadDialogHelper.showProgressWithText(activity, "更新中", progress)
                 }
                 UpdateManager.UpdateState.DownloadFile -> {
                     // 下载
                     if (UpdateManager.forceUpdate) {
+                        Thread.sleep(50)
                         (activity as LaunchActivity).loadDialogHelper.showProgressWithText(activity, "下载中", progress)
                     }
                 }
