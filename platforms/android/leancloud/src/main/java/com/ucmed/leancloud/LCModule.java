@@ -28,11 +28,20 @@ public class LCModule extends WXModule {
     }
 
     @JSMethod(uiThread = false)
-    public void upload(final JSONObject jsonObject, final JSCallback progress, final JSCallback done) {
+    public void upload(JSONObject jsonObject, final JSCallback progress, final JSCallback done) {
 
         File file = new File(jsonObject.getString("file"));
         byte[] data = FileUtil.readFile(file);
         final AVFile avFile = new AVFile(file.getName(), data);
+//        avFile.saveInBackground(new ProgressCallback() {
+//            @Override
+//            public void done(Integer percentDone) {
+//                JSONObject jsonObject1 = new JSONObject();
+//                jsonObject1.put("progress",percentDone);
+//                progress.invokeAndKeepAlive(jsonObject1);
+//            }
+//        });
+
         avFile.saveInBackground().subscribe(new Observer<AVFile>() {
             public void onSubscribe(Disposable disposable) {}
             public void onNext(AVFile file) {
@@ -49,14 +58,6 @@ public class LCModule extends WXModule {
                 done.invoke(jsonObject1);
             }
             public void onComplete() {}
-        });
-        avFile.saveInBackground(new ProgressCallback() {
-            @Override
-            public void done(Integer percentDone) {
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("progress",percentDone);
-                progress.invokeAndKeepAlive(jsonObject1);
-            }
         });
 
     }
