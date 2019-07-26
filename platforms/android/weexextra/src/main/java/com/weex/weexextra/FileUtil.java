@@ -9,6 +9,7 @@ import com.taobao.weex.WXEnvironment;
 import com.taobao.weex.utils.WXLogUtils;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -428,6 +430,31 @@ public class FileUtil {
     }
 
 
+    //file文件读取成byte[]
+    public static byte[] readFile(File file) {
+        RandomAccessFile rf = null;
+        byte[] data = null;
+        try {
+            rf = new RandomAccessFile(file, "r");
+            data = new byte[(int) rf.length()];
+            rf.readFully(data);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        } finally {
+            closeQuietly(rf);
+        }
+        return data;
+    }
 
+    //关闭读取file
+    public static void closeQuietly(Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
 
 }

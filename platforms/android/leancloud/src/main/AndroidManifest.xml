@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.ucmed.leancloud">
+    <application>
+        <provider
+            android:name="com.ucmed.leancloud.LCProvider"
+            android:authorities="${applicationId}.LCProvider"
+            android:enabled="true"
+            android:exported="false" />
+    </application>
+</manifest>

@@ -46,5 +46,6 @@ dependencies {
     implementation project(':NFCModule')
     implementation project(':WEImage')
     implementation project(':TslNet')
+    implementation project(':leancloud')
 }
 
