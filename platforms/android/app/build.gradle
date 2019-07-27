@@ -32,7 +32,9 @@ android {
 }
 
 dependencies {
-    api 'com.github.aygtech:weexbox-android-library:2.0.15'
+    api ('com.github.aygtech:weexbox-android-library:2.0.15'){
+//        exclude group: 'com.alibaba', module: 'fastjson'
+    }
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    testImplementation 'junit:junit:4.12'

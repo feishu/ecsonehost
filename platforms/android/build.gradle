@@ -3,7 +3,7 @@
 buildscript {
     repositories {
         google()
-        maven{url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         jcenter()
     }
 
@@ -21,7 +21,7 @@ allprojects {
     repositories {
 //        maven { url "http://192.168.0.121:8081/repository/maven-releases/" }
         google()
-        maven{url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         jcenter()
         maven { url "https://jitpack.io" }
     }
@@ -30,10 +30,18 @@ allprojects {
 subprojects {
     ext {
         kotlin_version = '1.2.21'
-        fastjsonLibVersion="1.1.71.android"
-        weexSDKVersion="0.18.0-beta-3"
-        TeslaWeexSDK="com.taobao.android:weex_sdk:0.24.0"
+        fastjsonLibVersion = "1.1.70.android"
+        weexSDKVersion = "0.18.0-beta-3"
+        TeslaWeexSDK = "com.taobao.android:weex_sdk:0.24.0"
     }
+}
+
+ext {
+    sdkVersion = "5.0.18"
+    supportLibVersion = "26.1.0"
+    fastjsonVersion = "1.1.70.android"
+    converterVersion = "2.1.0"
+    rxandroidVersion = "2.1.0"
 }
 
 task clean(type: Delete) {

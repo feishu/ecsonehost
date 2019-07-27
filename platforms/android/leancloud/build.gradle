@@ -26,18 +26,19 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+//    implementation 'com.android.support:appcompat-v7:26.1.0'
 //    testImplementation 'junit:junit:4.12'
 //    androidTestImplementation 'com.android.support.test:runner:1.0.2'
 //    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation ('cn.leancloud:storage-android:5.0.18'){
+    implementation("cn.leancloud:storage-android:${rootProject.ext.sdkVersion}") {
         exclude group: 'com.alibaba', module: 'fastjson'
         exclude group: 'org.ligboy.retrofit2', module: 'converter-fastjson'
     }
-    compileOnly 'io.reactivex.rxjava2:rxandroid:2.1.12'
-    compileOnly "com.alibaba:fastjson:${project.fastjsonLibVersion}"
-    implementation 'org.ligboy.retrofit2:converter-fastjson-android:2.1.0'
+    implementation "io.reactivex.rxjava2:rxandroid:${rootProject.ext.rxandroidVersion}"
+    implementation "com.alibaba:fastjson:${rootProject.ext.fastjsonVersion}"
+    implementation "org.ligboy.retrofit2:converter-fastjson-android:${rootProject.ext.converterVersion}"
+
     compileOnly project(':weexextra')
     compileOnly "${project.TeslaWeexSDK}"
 }

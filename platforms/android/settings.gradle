@@ -1,1 +1,12 @@
-include ':app', ':weexextra', ':WeexChartLib', ':BTModule', ':Qrcode', ':NFCModule', ':WEImage', ':TslNet', ':leancloud'
+include ':app',
+        ':WeexChartLib',
+        ':BTModule',
+        ':Qrcode',
+        ':NFCModule',
+        ':WEImage',
+        ':TslNet',
+        ':leancloud',
+        ':weexextra'
+
+//include ":LeanCloud_storage"
+//project(":LeanCloud_storage").projectDir=new File("E:\\DL\\java-unified-sdk-leancloud-sdk-5.0.18\\android-sdk\\storage-android")
