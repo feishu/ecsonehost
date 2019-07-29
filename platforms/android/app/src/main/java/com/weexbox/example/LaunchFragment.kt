@@ -22,7 +22,7 @@ class LaunchFragment : WBBaseFragment() {
 
 
         // 配置热更新地址
-        val hotDeployUrl = "http://weex.frp.apcan.cn"  //ecoupdate.frp.apcan.cn
+        val hotDeployUrl = "ecoupdate.frp.apcan.cn" //"http://weex.frp.apcan.cn"  //
         UpdateManager.serverUrl = hotDeployUrl
 
         // 是否需要强制更新
