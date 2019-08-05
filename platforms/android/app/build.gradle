@@ -31,15 +31,22 @@ android {
     }
 }
 
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
 dependencies {
     api ('com.github.aygtech:weexbox-android-library:2.0.15'){
 //        exclude group: 'com.alibaba', module: 'fastjson'
     }
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    testImplementation 'junit:junit:4.12'
-//    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-//    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation project(':BTModule')
     implementation project(':WeexChartLib')
