@@ -26,8 +26,14 @@ public class LCModule extends WXModule {
 
     @JSMethod(uiThread = false)
     public void upload(JSONObject jsonObject, final JSCallback progress, final JSCallback done) {
-
-        File file = new File(jsonObject.getString("file"));
+        if(!jsonObject.containsKey("file")){
+            JSONObject jsonObject1 = new JSONObject();
+            jsonObject1.put("err", "no file path");
+            done.invoke(jsonObject1);
+            return;
+        }
+        String filestr = jsonObject.getString("file").replace("file://","");
+        File file = new File(filestr);
         byte[] data = DemoUtils.readFile(file);
         AVFile avFile = new AVFile(file.getName(), data);
         avFile.saveInBackground(new ProgressCallback() {
