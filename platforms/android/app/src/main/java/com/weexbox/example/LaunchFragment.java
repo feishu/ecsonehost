@@ -45,7 +45,7 @@ public class LaunchFragment extends WBBaseFragment {
         super.onActivityCreated(savedInstanceState);
 
         // 配置热更新地址
-        String hotDeployUrl = "http://ecoupdate.frp.apcan.cn"; // "http://weex.frp.apcan.cn"; //
+        String hotDeployUrl = "http://weex.frp.apcan.cn"; // "http://ecoupdate.frp.apcan.cn"; //
         UpdateManager.INSTANCE.setServerUrl(hotDeployUrl);
 //        UpdateManager.serverUrl = hotDeployUrl
 
