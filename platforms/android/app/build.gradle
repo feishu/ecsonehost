@@ -39,7 +39,7 @@ kotlin {
 }
 
 dependencies {
-    api ('com.github.aygtech:weexbox-android-library:2.0.15'){
+    api ('com.github.aygtech:weexbox-android-library:2.1.65'){
 //        exclude group: 'com.alibaba', module: 'fastjson'
     }
 
