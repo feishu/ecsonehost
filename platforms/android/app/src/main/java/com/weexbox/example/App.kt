@@ -13,7 +13,7 @@ class App : Application() {
         WeexBoxEngine.setup(this, null)
 
         // 开启调试
-        WeexBoxEngine.isDebug = true
+        WeexBoxEngine.isDebug = false
 
         WXSDKEngine.registerModule("event", EventModule::class.java)
     }
