@@ -1,10 +1,14 @@
 package com.weexbox.example;
 
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.taobao.weex.utils.WXLogUtils;
+import com.ucmed.pushcenterlib.PushCenterManager;
+import com.ucmed.pushcenterlib.PushResultCallBack;
 import com.weexbox.core.controller.WBBaseActivity;
 import com.weexbox.core.util.ToastUtil;
 import com.yanzhenjie.permission.AndPermission;
@@ -14,7 +18,9 @@ import com.yanzhenjie.permission.RationaleListener;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_PHONE_STATE;
 
@@ -45,6 +51,38 @@ public class LaunchActivity extends WBBaseActivity{
                 ToastUtil.showLongToast(LaunchActivity.this, "Permission request Failed");
             }
         }).start();
+
+        Map map = new HashMap();
+        ApplicationInfo appInfo = null;
+        try {
+            appInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+            if (PushCenterManager.getInstance().getSDKtype().toLowerCase().equals("oppo")) {
+                map.put("OPPO_appKey", appInfo.metaData.getString("OPPO_appKey"));
+                map.put("OPPO_appSecret", appInfo.metaData.getString("OPPO_appSecret"));
+            }
+            if(PushCenterManager.getInstance().getSDKtype().toLowerCase().equals("vivo")){
+                map.put("Mi_APP_ID", appInfo.metaData.getString("Mi_APP_ID"));
+                map.put("Mi_APP_KEY", appInfo.metaData.getString("Mi_APP_KEY"));
+            }
+            if(PushCenterManager.getInstance().getManufacturer().toLowerCase().toLowerCase().equals("xiaomi")){
+                map.put("MZ_APP_ID", appInfo.metaData.getString("MZ_APP_ID"));
+                map.put("MZ_APP_KEY", appInfo.metaData.getString("MZ_APP_KEY"));
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        PushCenterManager.getInstance().getPushCenterInterface().register(this, map, new PushResultCallBack() {
+            @Override
+            public void success(Map map) {
+                WXLogUtils.i(map.toString());
+            }
+
+            @Override
+            public void failure(Map map) {
+                WXLogUtils.i(map.toString());
+            }
+        });
     }
 }
 

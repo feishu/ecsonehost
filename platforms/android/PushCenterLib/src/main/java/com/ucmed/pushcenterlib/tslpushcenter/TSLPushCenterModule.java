@@ -54,18 +54,18 @@ public class TSLPushCenterModule extends WXModule {
         ApplicationInfo appInfo = null;
         try {
             appInfo = mWXSDKInstance.getContext().getPackageManager().getApplicationInfo(mWXSDKInstance.getContext().getPackageName(), PackageManager.GET_META_DATA);
-//            if (PushCenterManager.getInstance().getSDKtype().toLowerCase().equals("oppo")) {
+            if (PushCenterManager.getInstance().getSDKtype().toLowerCase().equals("oppo")) {
                 map.put("OPPO_appKey", appInfo.metaData.getString("OPPO_appKey"));
                 map.put("OPPO_appSecret", appInfo.metaData.getString("OPPO_appSecret"));
-//            }
-//            if(PushCenterManager.getInstance().getSDKtype().toLowerCase().equals("vivo")){
-//                map.put("Mi_APP_ID", appInfo.metaData.getString("Mi_APP_ID"));
-//                map.put("Mi_APP_KEY", appInfo.metaData.getString("Mi_APP_KEY"));
-//            }
-//            if(PushCenterManager.getInstance().getManufacturer().toLowerCase().toLowerCase().equals("xiaomi")){
-//                map.put("MZ_APP_ID", appInfo.metaData.getString("MZ_APP_ID"));
-//                map.put("MZ_APP_KEY", appInfo.metaData.getString("MZ_APP_KEY"));
-//            }
+            }
+            if(PushCenterManager.getInstance().getSDKtype().toLowerCase().equals("vivo")){
+                map.put("Mi_APP_ID", appInfo.metaData.getString("Mi_APP_ID"));
+                map.put("Mi_APP_KEY", appInfo.metaData.getString("Mi_APP_KEY"));
+            }
+            if(PushCenterManager.getInstance().getManufacturer().toLowerCase().toLowerCase().equals("xiaomi")){
+                map.put("MZ_APP_ID", appInfo.metaData.getString("MZ_APP_ID"));
+                map.put("MZ_APP_KEY", appInfo.metaData.getString("MZ_APP_KEY"));
+            }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

@@ -127,7 +127,7 @@ public class XgPushAdapterIml extends PushAdapterIml implements PushCenterInterf
                 public void onFail(Object o, int i, String s) {
                     Map map = new HashMap();
                     map.put("code", i);
-                    map.put("token", o.toString());
+                    map.put("token", o==null?"":o.toString());
                     map.put("msg", s);
                     invokeResult(false, map, callBack);
                 }
