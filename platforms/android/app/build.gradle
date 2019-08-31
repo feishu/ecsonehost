@@ -11,7 +11,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.lzx.ecsone"
+        applicationId "com.lzx.ecsoneqnr"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
@@ -19,6 +19,20 @@ android {
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
+        manifestPlaceholders = [
+                XG_ACCESS_ID:"2100274183",
+                XG_ACCESS_KEY : "A2KAIH515Q5J",
+
+                HW_APPID: "",
+                OPPO_appKey:"",
+                OPPO_appSecret:"",
+                Mi_APP_ID:"",
+                Mi_APP_KEY:"",
+                MZ_APP_ID:"",
+                MZ_APP_KEY:"",
+                VIVO_APP_ID:"",
+                VIVO_APP_KEY:""
+        ]
     }
     buildTypes {
         release {
@@ -56,5 +70,6 @@ dependencies {
     implementation project(':WEImage')
     implementation project(':TslNet')
     implementation project(':leancloud')
+    implementation project(':PushCenterLib')
 }
 

@@ -1,0 +1,65 @@
+apply plugin: 'com.android.library'
+apply from: 'gradle-mvn-push.gradle'
+
+android {
+    compileSdkVersion 27
+
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "armeabi"
+        }
+//        manifestPlaceholders = [
+//                XG_ACCESS_ID : "注册应用的信鸽accessid",
+//                XG_ACCESS_KEY: "注册应用的信鸽accesskey",
+//                HW_APPID: "华为App_id",
+//        ]
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    compileOnly "${project.TeslaWeexSDK}"
+    compileOnly project(':weexextra')
+    compileOnly ('com.github.aygtech:weexbox-android-library:2.0.15')
+    compileOnly "com.alibaba:fastjson:${project.fastjsonLibVersion}"
+    //信鸽jar，不包含厂商通道
+    implementation 'com.tencent.xinge:xinge:4.3.2-release'
+    //jg包
+    implementation 'com.tencent.jg:jg:1.1'
+    //wup包
+    implementation 'com.tencent.wup:wup:1.0.0.E-Release'
+    //mid包，minSdkVersion 14
+    implementation 'com.tencent.mid:mid:4.0.7-Release'
+    /* 华为 4.3.2-release'
+    * 注意：若华为通道使用此版本,则信鸽sdk版本也需要同时使用v4.3.2
+    */
+    implementation 'com.tencent.xinge:xghw:4.3.2-huawei-release'
+    /*小米  4.3.2-release版
+ * 注意：若小米通道使用此版本,则信鸽sdk版本也需要同时使用v4.3.2
+ */
+    implementation 'com.tencent.xinge:mipush:4.3.2-xiaomi-release'
+    /* 魅族 4.3.2-release版
+ * 注意：若魅族通道使用此版本,则信鸽sdk版本也需要同时使用v4.3.2
+ */
+    implementation 'com.tencent.xinge:xgmz:4.3.2-meizu-release'
+}
