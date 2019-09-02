@@ -62,7 +62,13 @@
             </intent-filter>
         </receiver>
 
-
+        <!--接受广播显示通知,通知点击的回调-->
+        <receiver android:name=".TSLNotificationUtil$TSLNotificationClickMsgReceiver"
+        >
+            <intent-filter >
+                <action android:name="${applicationId}.tslpush.notification.click" /> 
+            </intent-filter>
+        </receiver>
 
         <receiver android:name=".XgPush.TSLHWReceiver">
             <intent-filter>
