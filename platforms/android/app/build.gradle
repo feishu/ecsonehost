@@ -20,8 +20,8 @@ android {
             abiFilters "armeabi-v7a", "x86"
         }
         manifestPlaceholders = [
-                XG_ACCESS_ID:"2100274183",
-                XG_ACCESS_KEY : "A2KAIH515Q5J",
+                XG_ACCESS_ID:"2100231275",
+                XG_ACCESS_KEY : "ALQ2WM1U152E",
 
                 HW_APPID: "",
                 OPPO_appKey:"",

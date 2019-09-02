@@ -6,11 +6,16 @@ import android.support.annotation.Nullable;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.taobao.weex.utils.WXLogUtils;
+import com.ucmed.pushcenterlib.PushCenterManager;
+import com.ucmed.pushcenterlib.PushCenterUtil;
+import com.ucmed.pushcenterlib.PushResultCallBack;
 import com.weexbox.core.controller.WBBaseFragment;
 import com.weexbox.core.router.Router;
 import com.weexbox.core.update.UpdateManager;
 
 import java.io.File;
+import java.util.Map;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function4;
@@ -76,6 +81,18 @@ public class LaunchFragment extends WBBaseFragment {
                 return null;
             }
         });
+
+//        PushCenterManager.getInstance().getPushCenterInterface().register(getContext(), null, new PushResultCallBack() {
+//            @Override
+//            public void success(Map map) {
+//                WXLogUtils.i(map.toString());
+//            }
+//
+//            @Override
+//            public void failure(Map map) {
+//                WXLogUtils.i(map.toString());
+//            }
+//        });
 
     }
 }
