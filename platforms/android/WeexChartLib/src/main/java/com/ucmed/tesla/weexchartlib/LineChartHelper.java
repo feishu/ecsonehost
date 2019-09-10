@@ -22,6 +22,7 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.taobao.weex.utils.WXResourceUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,6 +140,17 @@ public class LineChartHelper {
 //            values.add(new Entry(arrayList.get(i).getData().size()+1,Float.NaN));
             LineDataSet set = new LineDataSet(values, arrayList.get(i).getName());
 //            set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            set.setValueFormatter(new ValueFormatter() {
+                @Override
+                public String getFormattedValue(float value) {
+                    String s = "" + value;
+                    if(s.indexOf(".") > 0){
+                        s = s.replaceAll("0+?$", "");//去掉多余的0
+                        s = s.replaceAll("[.]$", "");//如最后一位是.则去掉
+                    }
+                    return s;
+                }
+            });
             set.setColor(colors.get(i));
             set.setCircleColor(colors.get(i));
             set.setLineWidth(1.8f);

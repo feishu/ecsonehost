@@ -20,7 +20,7 @@ public class LineAxisseriesConfig {
         this.name = name;
     }
 
-    private List<Integer> data ;
+    private List<Float> data ;
 
     public String getType() {
         return type;
@@ -30,11 +30,11 @@ public class LineAxisseriesConfig {
         this.type = type;
     }
 
-    public List<Integer> getData() {
+    public List<Float> getData() {
         return data;
     }
 
-    public void setData(List<Integer> data) {
+    public void setData(List<Float> data) {
         this.data = data;
     }
 
