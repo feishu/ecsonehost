@@ -107,17 +107,30 @@ public class TSLNotificationUtil {
         builder.setContentTitle(title);
         //设置通知内容
         builder.setContentText(content);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel(context);
+        }
         builder.setChannelId("tsl-push-channel");
 
         //设置通知时间，默认为系统发出通知的时间，通常不用设置
         builder.setWhen(System.currentTimeMillis());
-        Intent intent = new Intent(context.getPackageName()+ TSLNotificationClickMsgReceiver.ACTION_CLICK);
-        if (customContent != null)
-            intent.putExtra("customContent", customContent);
-        intent.putExtra("title", title);
-        intent.putExtra("content", content);
-        PendingIntent contentIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        builder.setContentIntent(contentIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent intent = new Intent(context, NotificationActivity.class);
+            if (customContent != null)
+                intent.putExtra("customContent", customContent);
+            intent.putExtra("title", title);
+            intent.putExtra("content", content);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            builder.setContentIntent(contentIntent);
+        }else {
+            Intent intent = new Intent(context.getPackageName() + TSLNotificationClickMsgReceiver.ACTION_CLICK);
+            if (customContent != null)
+                intent.putExtra("customContent", customContent);
+            intent.putExtra("title", title);
+            intent.putExtra("content", content);
+            PendingIntent contentIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            builder.setContentIntent(contentIntent);
+        }
         builder.setAutoCancel(true);
         Notification notification=builder.build();
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
