@@ -11,11 +11,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.lzx.ecsoneqnr"
+        applicationId "com.lzx.ecsone"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0.9"
+        versionName "1.0.10"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
