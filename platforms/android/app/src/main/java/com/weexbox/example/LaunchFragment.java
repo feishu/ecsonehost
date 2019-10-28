@@ -50,7 +50,7 @@ public class LaunchFragment extends WBBaseFragment {
         super.onActivityCreated(savedInstanceState);
 
         // 配置热更新地址
-        String hotDeployUrl =  "http://www.bbb.com";//"http://ecoupdate.frp.apcan.cn"; // "https://ecsoneqnr.app.swiretest.com/hotecsone"; // "http://weex.frp.apcan.cn";//
+        String hotDeployUrl =  "https://ecsone.app.swirebev.com:7500/ecsoneupdate";//"http://www.bbb.com";// "https://ecsoneqnr.app.swiretest.com/hotecsone"; //"http://weex.frp.apcan.cn";//
         UpdateManager.INSTANCE.setServerUrl(hotDeployUrl);
 //        UpdateManager.serverUrl = hotDeployUrl
 
@@ -66,10 +66,10 @@ public class LaunchFragment extends WBBaseFragment {
             @Override
             public Unit invoke(UpdateManager.UpdateState updateState, Integer integer, Throwable throwable, File file) {
                 if (updateState.equals(UpdateManager.UpdateState.Unzip)) {
-                    updateUI("更新中", integer);
+//                    updateUI("更新中", integer);
                 }
                 if (updateState == UpdateManager.UpdateState.DownloadFile) {
-                    updateUI("下载中", integer);
+//                    updateUI("下载中", integer);
                 }
                 if (updateState == UpdateManager.UpdateState.UpdateSuccess) {
                     Router router = new Router();
