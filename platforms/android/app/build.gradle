@@ -11,18 +11,17 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.lzx.ecsone"
+        applicationId "com.lzx.ecsoneDNR"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0.10"
+        versionName "1.0.11"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
         manifestPlaceholders = [
                 XG_ACCESS_ID:"2100346790",
                 XG_ACCESS_KEY : "A1BH437RMG6H",
-
                 HW_APPID: "",
                 OPPO_appKey:"",
                 OPPO_appSecret:"",
@@ -53,7 +52,7 @@ kotlin {
 }
 
 dependencies {
-    api ('com.github.aygtech:weexbox-android-library:2.0.15'){
+    api ('com.github.aygtech:weexbox-android-library:2.2.0'){
 //        exclude group: 'com.alibaba', module: 'fastjson'
     }
 
