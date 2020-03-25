@@ -178,7 +178,7 @@ public class QRAdapterIml {
         }
     }
 
-    public void generateQR(final Context context, String src, String logo, String format, int QR_WIDTH, int QR_HEIGHT, final ModuleAdapterCallBack callbackInterface) {
+    public void generateQR(final Context context, String src, String logo,int color ,String format, int QR_WIDTH, int QR_HEIGHT, final ModuleAdapterCallBack callbackInterface) {
         if (TextUtils.isEmpty(src)) {
             callbackInterface.error("src is null");
         }
@@ -252,7 +252,7 @@ public class QRAdapterIml {
             for (int y = 0; y < QR_HEIGHT; y++) {
                 for (int x = 0; x < QR_WIDTH; x++) {
                     if (bitMatrix.get(x, y)) {
-                        pixels[y * QR_WIDTH + x] = 0xff000000;
+                        pixels[y * QR_WIDTH + x] = color;
                     } else {
                         pixels[y * QR_WIDTH + x] = 0xffffffff;
                     }
@@ -288,7 +288,7 @@ public class QRAdapterIml {
 
             if (saveFile.exists()) {
                 Map map = new HashMap();
-                map.put("imageUrl", Uri.fromFile(saveFile).toString());
+                map.put("imageUrl", saveFile.getAbsolutePath());
                 callbackInterface.success(map);
             }
         } catch (WriterException e) {

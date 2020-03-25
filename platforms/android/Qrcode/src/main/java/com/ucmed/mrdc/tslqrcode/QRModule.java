@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
+import com.taobao.weex.utils.WXResourceUtils;
 import com.weex.weexextra.ModuleAdapterCallBack;
 
 
@@ -53,7 +54,12 @@ public class QRModule extends WXModule {
             String logoPath = mWXSDKInstance.rewriteUri(Uri.parse(object.getString("logo")), BUNDLE).getEncodedPath();
             object.put("logo",logoPath);
         }
-        new QRAdapterIml().generateQR(mWXSDKInstance.getContext(), object.getString("qrCodeString"),object.getString("logo")
+        int color = 0xff000000;
+        if(!TextUtils.isEmpty(object.getString("color"))){
+            color = WXResourceUtils.getColor(object.getString("color"));
+        }
+        new QRAdapterIml().generateQR(mWXSDKInstance.getContext(), object.getString("qrCodeString"),object.getString("logo"),
+                color
                 ,object.getString("scanType"),width,height,
                 new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack));
     }

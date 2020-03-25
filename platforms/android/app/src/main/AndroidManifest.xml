@@ -7,10 +7,10 @@
         android:name=".App"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="EcsOneDNR"
+        android:label="ecsone"
         android:largeHeap="true"
         android:supportsRtl="true"
-        android:theme="@style/NoActionbarTheme"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:replace="android:allowBackup,android:theme,android:label">
 
         <activity
