@@ -28,7 +28,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_PHONE_STATE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.provider.Settings.EXTRA_APP_PACKAGE;
 import static android.provider.Settings.EXTRA_CHANNEL_ID;
 
@@ -112,7 +116,11 @@ public class LaunchActivity extends WBBaseActivity{
     }
 
     private void gotoApp(){
-        AndPermission.with(this).requestCode(100).permission(READ_PHONE_STATE).rationale(new RationaleListener() {
+        AndPermission.with(this).requestCode(100).permission(CAMERA,
+                READ_PHONE_STATE,
+                WRITE_EXTERNAL_STORAGE,
+                ACCESS_FINE_LOCATION,
+                ACCESS_COARSE_LOCATION).rationale(new RationaleListener() {
             @Override
             public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
                 AndPermission.rationaleDialog(LaunchActivity.this,rationale).show();

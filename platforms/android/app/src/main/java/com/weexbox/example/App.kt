@@ -1,8 +1,10 @@
 package com.weexbox.example
 
 import android.app.Application
+import com.lelibrary.androidlelibrary.init.SDKInsigma
 import com.taobao.weex.WXSDKEngine
 import com.weexbox.core.WeexBoxEngine
+import com.weexbox.example.LEL.LELModule
 
 class App : Application() {
 
@@ -14,7 +16,8 @@ class App : Application() {
 
         // 开启调试
         WeexBoxEngine.isDebug = false
-
+        SDKInsigma.init(this,true)
+        WXSDKEngine.registerModule("LEL",LELModule::class.java)
         WXSDKEngine.registerModule("event", EventModule::class.java)
     }
 
