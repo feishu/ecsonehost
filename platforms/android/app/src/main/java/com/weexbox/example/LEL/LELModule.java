@@ -3,9 +3,11 @@ package com.weexbox.example.LEL;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.bugfender.sdk.MyBugfender;
 import com.lelibrary.androidlelibrary.ble.BluetoothLeDeviceStore;
@@ -15,6 +17,8 @@ import com.lelibrary.androidlelibrary.ble.SmartDevice;
 import com.lelibrary.androidlelibrary.ble.SmartDeviceModel;
 import com.lelibrary.androidlelibrary.sdk.InsigmaBluetoothManager;
 import com.lelibrary.androidlelibrary.sdk.SmartServerAPI;
+import com.lelibrary.androidlelibrary.sdk.callback.WSCoolerCallback;
+import com.lelibrary.androidlelibrary.sdk.model.CoolerModel;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
@@ -71,7 +75,7 @@ public class LELModule extends WXModule {
         }
         return smartServerAPI;
     }
-//    private static InsigmaBluetoothManager insigmaBluetoothManager = null;
+    private static InsigmaBluetoothManager insigmaBluetoothManager = null;
 //    private InsigmaBluetoothManager getBluetoothManager(Context context){
 //        if(insigmaBluetoothManager == null){
 //            insigmaBluetoothManager = new InsigmaBluetoothManager(context,this);
@@ -126,20 +130,40 @@ public class LELModule extends WXModule {
     public void startScan(JSONObject object, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
         try {
-            InsigmaBluetoothManager insigmaBluetoothManager = new InsigmaBluetoothManager(mWXSDKInstance.getContext().getApplicationContext(),
+            insigmaBluetoothManager = new InsigmaBluetoothManager(mWXSDKInstance.getContext().getApplicationContext(),
                     new ScannerCallback() {
                         @Override
                         public void onDeviceFound(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, SmartDevice smartDevice, Context context, boolean b, SmartDeviceModel smartDeviceModel) {
                             Map m = new HashMap();
-                            m.put("type", "found");
-                            m.put("device", JSON.toJSON(smartDeviceModel));
+                            m.put("type", "onDeviceFound");
+//                            m.put("device", JSON.toJSON(smartDeviceModel));
+//                            m.put("device", JSON.toJSON(smartDevice));
+
+                            JSONObject map = new JSONObject();
+                            try {
+                                map.put("IBeaconUUID",smartDevice.getIbeaconUUID());
+                                map.put("BatteryLevel",smartDevice.getBatteryLevel());
+                                map.put("CoolerID",smartDevice.getCoolerId());
+                                map.put("SerialNumber",smartDevice.getSerialNumber());
+                                map.put("Distance",smartDevice.getDistanceInMeter(mWXSDKInstance.getContext()));
+                                map.put("DistanceInMM",smartDevice.getSmartShelfDistanceInMM());
+                                map.put("DistanceRange",smartDevice.getRSSIRange(smartDevice.getDistanceInMeter(mWXSDKInstance.getContext())));
+                                map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
+                                map.put("macAddress",smartDevice.getAddress());
+                                map.put("Rssi",smartDevice.getRssi());
+                                map.put("getName",smartDevice.getDevice().getName());
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            m.put("device", map);
                             moduleAdapterCallBack.success(m);
                         }
 
                         @Override
                         public void onScanFinished(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, Context context, boolean b) {
                             Map m = new HashMap();
-                            m.put("type", "finish");
+                            m.put("type", "onScanFinished");
 //                            m.put("devices", JSONArray.parseArray(JSON.toJSONString(bluetoothLeDeviceStore.getDeviceList())));
                             m.put("devices",  new JSONArray(new ArrayList<Object>(bluetoothLeDeviceStore.getDeviceList())));
                             moduleAdapterCallBack.success(m);
@@ -148,7 +172,7 @@ public class LELModule extends WXModule {
                         @Override
                         public void onScanFailed(int i) {
                             Map m = new HashMap();
-                            m.put("type", "fail");
+                            m.put("type", "onScanFailed");
                             m.put("code", i);
                             moduleAdapterCallBack.error(m);
                         }
@@ -168,8 +192,46 @@ public class LELModule extends WXModule {
     }
 
     @JSMethod
-    public void startScan(){
+    public void stopScan(){
+        if(insigmaBluetoothManager != null)insigmaBluetoothManager.stopScan();
+    }
 
+    @JSMethod
+    public void getCoolerModel(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
+        if(!jsonObject.containsKey("coolerSerial")){
+            moduleAdapterCallBack.error("no coolerSerial");
+            return;
+        }
+
+        getAPI(mWXSDKInstance.getContext()).checkCoolerAssociation(jsonObject.getString("username"), jsonObject.getString("coolerSerial"), new WSCoolerCallback() {
+            @Override
+            public void onSuccess(CoolerModel coolerModel) {
+                JSONObject map = new JSONObject();
+                try {
+                    map.put("AssetSerialNumber",coolerModel.getAssetSerialNumber());
+                    map.put("AssetType",coolerModel.getAssetType());
+                    map.put("AssetTypeInstallationImages",coolerModel.getAssetTypeInstallationImages());
+                    map.put("EquipmentNumber",coolerModel.getEquipmentNumber());
+                    map.put("Message",coolerModel.getMessage());
+                    map.put("OutletCode",coolerModel.getOutletCode());
+                    map.put("OutletName",coolerModel.getOutletName());
+                    map.put("SmartDeviceSerial",coolerModel.getSmartDeviceSerial());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                moduleAdapterCallBack.success(map);
+            }
+
+            @Override
+            public void onFailure(String s, int i, Exception e) {
+                Map m = new HashMap();
+                m.put("error",s);
+                m.put("code",i);
+                m.put("Exception",e.getMessage());
+                moduleAdapterCallBack.error(m);
+            }
+        });
     }
 
 
