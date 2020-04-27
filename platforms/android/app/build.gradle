@@ -41,7 +41,10 @@ android {
     }
     packagingOptions {
         exclude 'META-INF/atomicfu.kotlin_module'
+        pickFirst 'okhttp3/internal/publicsuffix/publicsuffixes.gz'
+        pickFirst 'META-INF/retrofit.kotlin_module'
     }
+
 }
 
 
