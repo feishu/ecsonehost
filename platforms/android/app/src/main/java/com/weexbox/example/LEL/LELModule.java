@@ -105,6 +105,19 @@ public class LELModule extends WXModule {
     }
 
     @JSMethod
+    public void setAPIKeyAndAccessURL(JSONObject object, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
+        if(!object.containsKey("APIkey")||!object.containsKey("Server_Index")){
+            moduleAdapterCallBack.error("params error");
+            return;
+        }
+        getAPI(mWXSDKInstance.getContext()).setAPIKey(object.getString("APIkey"));
+        getAPI(mWXSDKInstance.getContext()).setAccessURL(object.getIntValue("Server_Index"));
+        moduleAdapterCallBack.success("");
+    }
+
+
+    @JSMethod
     public void setServerTimeoutInterval(JSONObject object, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
         if (!object.containsKey("ServerConnectionTimeout")) {
