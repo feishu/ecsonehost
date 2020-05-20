@@ -688,6 +688,7 @@ public class LELModule extends WXModule {
                 map.put("isSuccess", isSuccess);
                 map.put("dataList", new JSONArray(new ArrayList<Object>(dataList)));
                 moduleAdapterCallBack.successKeepAlive(map);
+                uploadData(moduleAdapterCallBack);
             }
 
             @Override
