@@ -130,6 +130,19 @@ public class LELModule extends WXModule {
         moduleAdapterCallBack.success("");
     }
 
+    private String UserName = "";
+    @JSMethod
+    public void setAPIKeyAndAccessURLAndUserName(JSONObject object, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
+        if(!object.containsKey("APIkey")||!object.containsKey("Server_Index")||!object.containsKey("UserName")){
+            moduleAdapterCallBack.error("params error");
+            return;
+        }
+        getAPI(mWXSDKInstance.getContext()).setAPIKey(object.getString("APIkey"));
+        getAPI(mWXSDKInstance.getContext()).setAccessURL(object.getIntValue("Server_Index"));
+        UserName = object.getString("UserName");
+        moduleAdapterCallBack.success("");
+    }
 
     @JSMethod
     public void setServerTimeoutInterval(JSONObject object, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
@@ -269,7 +282,7 @@ public class LELModule extends WXModule {
     @JSMethod
     public void launchValidationApp(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        boolean b = ValidationUtils.launchValidationApp(mWXSDKInstance.getContext(),jsonObject.getString("username"),jsonObject.getString("password"),jsonObject.getString("sfaUserId"));
+        boolean b = ValidationUtils.launchValidationApp(mWXSDKInstance.getContext(),UserName,jsonObject.getString("password"),jsonObject.getString("sfaUserId"));
         if(b){
             moduleAdapterCallBack.success("");
         }else{
@@ -291,7 +304,7 @@ public class LELModule extends WXModule {
     @JSMethod
     public void doAssociation(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        getAPI(mWXSDKInstance.getContext()).doAssociation(jsonObject.getString("username"), jsonObject.getString("coolerSN"), jsonObject.getString("deviceMacAddress")
+        getAPI(mWXSDKInstance.getContext()).doAssociation(UserName, jsonObject.getString("coolerSN"), jsonObject.getString("deviceMacAddress")
                 , new WSAssociationCallback() {
                     @Override
                     public void onSuccess(AssociationModel associationModel) {
@@ -315,7 +328,7 @@ public class LELModule extends WXModule {
     @JSMethod
     public void removeAssociation(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        getAPI(mWXSDKInstance.getContext()).removeAssociation(jsonObject.getString("username"), jsonObject.getString("coolerSN"), jsonObject.getString("deviceMacAddress")
+        getAPI(mWXSDKInstance.getContext()).removeAssociation(UserName, jsonObject.getString("coolerSN"), jsonObject.getString("deviceMacAddress")
                 , new WSRemoveAssociationCallback() {
                     @Override
                     public void onSuccess(RemoveAssociationModel removeAssociationModel) {
@@ -339,7 +352,7 @@ public class LELModule extends WXModule {
     @JSMethod
     public void checkDeviceAssociation(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        getAPI(mWXSDKInstance.getContext()).checkDeviceAssociation(jsonObject.getString("username"), jsonObject.getString("smartDeviceSN")
+        getAPI(mWXSDKInstance.getContext()).checkDeviceAssociation(UserName, jsonObject.getString("smartDeviceSN")
                 , new WSDeviceCallback() {
                     @Override
                     public void onSuccess(DeviceModel deviceModel) {
@@ -381,7 +394,7 @@ public class LELModule extends WXModule {
     @JSMethod
     public void checkCoolerAssociation(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        getAPI(mWXSDKInstance.getContext()).checkCoolerAssociation(jsonObject.getString("username"), jsonObject.getString("CoolerSN")
+        getAPI(mWXSDKInstance.getContext()).checkCoolerAssociation(UserName, jsonObject.getString("CoolerSN")
                 , new WSCoolerCallback() {
                     @Override
                     public void onSuccess(CoolerModel coolerModel) {
@@ -417,7 +430,49 @@ public class LELModule extends WXModule {
     @JSMethod
     public void uploadData(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        getAPI(mWXSDKInstance.getContext()).uploadData(jsonObject.getString("username")
+        getAPI(mWXSDKInstance.getContext()).uploadData(UserName
+                , new WSUploadCallback() {
+
+                    @Override
+                    public void onFailure(UploadStatusModel uploadStatusModel, String Message, int StatusCode, Exception exception) {
+                        Map m = new HashMap();
+                        m.put("message", Message);
+                        m.put("StatusCode", StatusCode);
+                        m.put("exception", exception.getMessage());
+                        m.put("uploadStatusModel",JSON.toJSON(uploadStatusModel));
+                        moduleAdapterCallBack.error(m);
+                    }
+
+                    @Override
+                    public void onSuccess(UploadStatusModel uploadStatusModel, HttpModel httpModel) {
+                        Map m = new HashMap();
+                        m.put("uploadStatusModel",JSON.toJSON(uploadStatusModel));
+                        m.put("httpModel",JSON.toJSON(httpModel));
+                        m.put("status","onSuccess");
+                        moduleAdapterCallBack.successKeepAlive(m);
+                    }
+
+                    @Override
+                    public void onProgress(long Left, String MACAddress, String Message) {
+                        Map m = new HashMap();
+                        m.put("left", Left);
+                        m.put("status", "onProgress");
+                        m.put("MACAddress", MACAddress);
+                        m.put("Message", Message);
+                        moduleAdapterCallBack.successKeepAlive(m);
+                    }
+
+                    @Override
+                    public void onAllDataUploaded() {
+                        Map m = new HashMap();
+                        m.put("status", "onAllDataUploaded");
+                        moduleAdapterCallBack.successKeepAlive(m);
+                    }
+                });
+    }
+
+    public void uploadData(ModuleAdapterCallBack moduleAdapterCallBack){
+        getAPI(mWXSDKInstance.getContext()).uploadData(UserName
                 , new WSUploadCallback() {
 
                     @Override
