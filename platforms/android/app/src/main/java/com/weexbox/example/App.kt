@@ -15,7 +15,7 @@ class App : Application() {
         WeexBoxEngine.setup(this, null)
 
         // 开启调试
-        WeexBoxEngine.isDebug = false
+        WeexBoxEngine.isDebug = true
         SDKInsigma.init(this,true)
         WXSDKEngine.registerModule("LEL",LELModule::class.java)
         WXSDKEngine.registerModule("event", EventModule::class.java)

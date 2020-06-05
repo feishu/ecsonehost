@@ -11,7 +11,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.lzx.ecsone"
+        applicationId "com.lzx.ecsone_debug"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1

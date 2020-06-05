@@ -47,6 +47,9 @@ public class LCModule extends WXModule {
 
         avFile.saveInBackground().subscribe(new Observer<AVFile>() {
             public void onSubscribe(Disposable disposable) {
+                JSONObject jsonObject1 = new JSONObject();
+                jsonObject1.put("status", "onSubscribe");
+                done.invoke(jsonObject1);
             }
 
             public void onNext(AVFile file) {
@@ -54,6 +57,7 @@ public class LCModule extends WXModule {
                 JSONObject jsonObject1 = new JSONObject();
                 jsonObject1.put("url", file.getUrl());
                 jsonObject1.put("ObjectId", file.getObjectId());
+                jsonObject1.put("status", "onNext");
                 done.invoke(jsonObject1);
             }
 
@@ -61,10 +65,14 @@ public class LCModule extends WXModule {
                 // 保存失败，可能是文件无法被读取，或者上传过程中出现问题
                 JSONObject jsonObject1 = new JSONObject();
                 jsonObject1.put("err", throwable.getMessage());
+                jsonObject1.put("status", "onError");
                 done.invoke(jsonObject1);
             }
 
             public void onComplete() {
+                JSONObject jsonObject1 = new JSONObject();
+                jsonObject1.put("status", "onComplete");
+                done.invoke(jsonObject1);
             }
         });
 

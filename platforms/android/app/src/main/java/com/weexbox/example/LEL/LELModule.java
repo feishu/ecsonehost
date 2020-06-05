@@ -193,7 +193,7 @@ public class LELModule extends WXModule {
                                 map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                                 map.put("macAddress",smartDevice.getAddress());
                                 map.put("Rssi",smartDevice.getRssi());
-                                map.put("getName",smartDevice.getDevice().getName());
+                                map.put("Name",smartDevice.getDevice().getName());
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -532,7 +532,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -555,7 +555,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -578,7 +578,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -603,7 +603,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -627,7 +627,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -653,7 +653,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -679,7 +679,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -688,7 +688,7 @@ public class LELModule extends WXModule {
                 map.put("isSuccess", isSuccess);
                 map.put("dataList", new JSONArray(new ArrayList<Object>(dataList)));
                 moduleAdapterCallBack.successKeepAlive(map);
-                uploadData(moduleAdapterCallBack);
+//                uploadData(moduleAdapterCallBack);
             }
 
             @Override
@@ -705,7 +705,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -730,7 +730,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -754,7 +754,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -780,7 +780,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -805,7 +805,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -829,7 +829,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -853,7 +853,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -877,7 +877,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -904,7 +904,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -931,7 +931,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -954,7 +954,7 @@ public class LELModule extends WXModule {
                     map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
                     map.put("macAddress",smartDevice.getAddress());
                     map.put("Rssi",smartDevice.getRssi());
-                    map.put("getName",smartDevice.getDevice().getName());
+                    map.put("Name",smartDevice.getDevice().getName());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -964,6 +964,144 @@ public class LELModule extends WXModule {
                 moduleAdapterCallBack.successKeepAlive(map);
             }
         });
+        if(!insigmaSmartDevice.isDisconnected()){
+            insigmaSmartDevice.connectDevice();
+            return;
+        }
         insigmaSmartDevice.downloadData();
+    }
+
+    @JSMethod
+    public void connectDevice(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
+        InsigmaSmartDevice insigmaSmartDevice = new InsigmaSmartDevice(mWXSDKInstance.getContext(), smartDevices.get(jsonObject.getIntValue("index"))
+                , new SmartCallback() {
+            @Override
+            public void onDeviceConnected(SmartDevice smartDevice) {
+                Map map = new HashMap();
+                try {
+                    map.put("IBeaconUUID",smartDevice.getIbeaconUUID());
+                    map.put("BatteryLevel",smartDevice.getBatteryLevel());
+                    map.put("CoolerID",smartDevice.getCoolerId());
+                    map.put("SerialNumber",smartDevice.getSerialNumber());
+                    map.put("Distance",smartDevice.getDistanceInMeter(mWXSDKInstance.getContext()));
+                    map.put("DistanceInMM",smartDevice.getSmartShelfDistanceInMM());
+                    map.put("DistanceRange",smartDevice.getRSSIRange(smartDevice.getDistanceInMeter(mWXSDKInstance.getContext())));
+                    map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
+                    map.put("macAddress",smartDevice.getAddress());
+                    map.put("Rssi",smartDevice.getRssi());
+                    map.put("Name",smartDevice.getDevice().getName());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                map.put("status", "onDeviceConnected");
+                moduleAdapterCallBack.successKeepAlive(map);
+            }
+
+            @Override
+            public void onDeviceDisconnected(SmartDevice smartDevice) {
+                Map map = new HashMap();
+                try {
+                    map.put("IBeaconUUID",smartDevice.getIbeaconUUID());
+                    map.put("BatteryLevel",smartDevice.getBatteryLevel());
+                    map.put("CoolerID",smartDevice.getCoolerId());
+                    map.put("SerialNumber",smartDevice.getSerialNumber());
+                    map.put("Distance",smartDevice.getDistanceInMeter(mWXSDKInstance.getContext()));
+                    map.put("DistanceInMM",smartDevice.getSmartShelfDistanceInMM());
+                    map.put("DistanceRange",smartDevice.getRSSIRange(smartDevice.getDistanceInMeter(mWXSDKInstance.getContext())));
+                    map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
+                    map.put("macAddress",smartDevice.getAddress());
+                    map.put("Rssi",smartDevice.getRssi());
+                    map.put("Name",smartDevice.getDevice().getName());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                map.put("status", "onDeviceDisconnected");
+                moduleAdapterCallBack.successKeepAlive(map);
+            }
+
+            @Override
+            public void onImageSequenceTableDownloaded(SmartDevice smartDevice, boolean b, org.json.JSONArray jsonArray) {
+
+            }
+
+            @Override
+            public void onImageDeleted(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onImageDownloadProgress(SmartDevice smartDevice, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onImageDownloadCompleted(SmartDevice smartDevice, boolean b, ByteArrayOutputStream byteArrayOutputStream) {
+
+            }
+
+            @Override
+            public void onDataDownloaded(SmartDevice smartDevice, boolean b, ArrayList<BLETagModel> arrayList) {
+
+            }
+
+            @Override
+            public void onDataProgress(SmartDevice smartDevice, int i, int i1) {
+
+            }
+
+            @Override
+            public void onEraseAllEvents(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onRemoteCommandsExecutionProcess(SmartDevice smartDevice, org.json.JSONObject jsonObject, int i, int i1) {
+
+            }
+
+            @Override
+            public void onRemoteCommandsExecutionFinished(SmartDevice smartDevice, int i, String s) {
+
+            }
+
+            @Override
+            public void onUpdate(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onLogUpdate(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
+
+            }
+
+            @Override
+            public void onDFUProgress(SmartDevice smartDevice, int i, int i1, float v, float v1) {
+
+            }
+
+            @Override
+            public void onDFUSuccess(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onDFUFailed(SmartDevice smartDevice, String s) {
+
+            }
+        });
+        insigmaSmartDevice.connectDevice();
     }
 }
