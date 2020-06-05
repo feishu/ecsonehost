@@ -194,6 +194,16 @@ public class LELModule extends WXModule {
                                 map.put("macAddress",smartDevice.getAddress());
                                 map.put("Rssi",smartDevice.getRssi());
                                 map.put("Name",smartDevice.getDevice().getName());
+                                map.put("DeviceType",smartDevice.getDeviceTypeName());
+                                map.put("DeviceTypeId",smartDevice.getDeviceTypeId());
+                                map.put("isDoorOpen",smartDevice.isDoorOpen());
+                                map.put("isMultiDoorEnable",smartDevice.isMultiDoorEnable());
+                                map.put("isDoorTimeout",smartDevice.isDoorTimeout());
+                                map.put("SmartDoorCount",smartDevice.getSmartDoorCount());
+//                                map.put("isDoor2Open",smartDevice.isDoor2Open());
+//                                map.put("isDoor2Timeout",smartDevice.isDoor2Timeout());
+//                                map.put("isDoor3Open",smartDevice.isDoor3Open());
+//                                map.put("isDoor3Timeout",smartDevice.isDoor3Timeout());
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -688,7 +698,7 @@ public class LELModule extends WXModule {
                 map.put("isSuccess", isSuccess);
                 map.put("dataList", new JSONArray(new ArrayList<Object>(dataList)));
                 moduleAdapterCallBack.successKeepAlive(map);
-//                uploadData(moduleAdapterCallBack);
+                uploadData(moduleAdapterCallBack);
             }
 
             @Override
