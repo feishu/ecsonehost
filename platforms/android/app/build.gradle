@@ -15,13 +15,13 @@ android {
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0.11"
+        versionName "1.1.1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
         manifestPlaceholders = [
-                XG_ACCESS_ID:"2100231275",
-                XG_ACCESS_KEY : "ALQ2WM1U152E",
+                XG_ACCESS_ID:"2100346790",
+                XG_ACCESS_KEY : "A1BH437RMG6H",
                 HW_APPID: "",
                 OPPO_appKey:"",
                 OPPO_appSecret:"",
