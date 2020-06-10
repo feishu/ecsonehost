@@ -1,4 +1,4 @@
-package com.weexbox.example.LEL;
+package com.weexbox.example.modules;
 
 import android.app.Activity;
 import android.content.Context;
