@@ -1095,7 +1095,6 @@ public class LELModule extends WXModule {
                             m.put("type", "onDeviceFound");
 //                            m.put("device", JSON.toJSON(smartDeviceModel));
 //                            m.put("device", JSON.toJSON(smartDevice));
-
                             if(smartDevice.getSerialNumber().equals(jsonObject.getString("smartDeviceSN"))&&smartDevice.isDoorOpen()){
                                 insigmaBluetoothManager.stopScan();
                                 timer.cancel();
