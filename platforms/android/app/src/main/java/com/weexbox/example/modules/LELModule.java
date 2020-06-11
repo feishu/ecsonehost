@@ -1464,7 +1464,7 @@ public class LELModule extends WXModule {
                     public void onProgress(long Left, String MACAddress, String Message) {
                         Map m = new HashMap();
                         m.put("left", Left);
-                        m.put("status", "onProgress");
+//                        m.put("status", "onProgress");
                         m.put("MACAddress", MACAddress);
                         m.put("Message", Message);
                         moduleAdapterCallBack.successKeepAlive(m);
