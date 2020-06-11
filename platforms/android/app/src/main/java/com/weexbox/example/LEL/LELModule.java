@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -166,6 +168,7 @@ public class LELModule extends WXModule {
         moduleAdapterCallBack.success("");
     }
 
+    static SmartDevice mSmartDevice;
 
     private List<SmartDevice> smartDevices = new ArrayList<>();
     @JSMethod
@@ -180,6 +183,7 @@ public class LELModule extends WXModule {
                             m.put("type", "onDeviceFound");
 //                            m.put("device", JSON.toJSON(smartDeviceModel));
 //                            m.put("device", JSON.toJSON(smartDevice));
+
 
                             JSONObject map = new JSONObject();
                             try {
@@ -204,7 +208,10 @@ public class LELModule extends WXModule {
 //                                map.put("isDoor2Timeout",smartDevice.isDoor2Timeout());
 //                                map.put("isDoor3Open",smartDevice.isDoor3Open());
 //                                map.put("isDoor3Timeout",smartDevice.isDoor3Timeout());
-
+                                if(object.containsKey("smartDeviceSN")&&object.getString("smartDeviceSN").equals(smartDevice.getSerialNumber())){
+                                    mSmartDevice = smartDevice;
+                                    insigmaBluetoothManager.stopScan();
+                                }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -481,48 +488,6 @@ public class LELModule extends WXModule {
                 });
     }
 
-    public void uploadData(ModuleAdapterCallBack moduleAdapterCallBack){
-        getAPI(mWXSDKInstance.getContext()).uploadData(UserName
-                , new WSUploadCallback() {
-
-                    @Override
-                    public void onFailure(UploadStatusModel uploadStatusModel, String Message, int StatusCode, Exception exception) {
-                        Map m = new HashMap();
-                        m.put("message", Message);
-                        m.put("StatusCode", StatusCode);
-                        m.put("exception", exception.getMessage());
-                        m.put("uploadStatusModel",JSON.toJSON(uploadStatusModel));
-                        moduleAdapterCallBack.error(m);
-                    }
-
-                    @Override
-                    public void onSuccess(UploadStatusModel uploadStatusModel, HttpModel httpModel) {
-                        Map m = new HashMap();
-                        m.put("uploadStatusModel",JSON.toJSON(uploadStatusModel));
-                        m.put("httpModel",JSON.toJSON(httpModel));
-                        m.put("status","onSuccess");
-                        moduleAdapterCallBack.successKeepAlive(m);
-                    }
-
-                    @Override
-                    public void onProgress(long Left, String MACAddress, String Message) {
-                        Map m = new HashMap();
-                        m.put("left", Left);
-                        m.put("status", "onProgress");
-                        m.put("MACAddress", MACAddress);
-                        m.put("Message", Message);
-                        moduleAdapterCallBack.successKeepAlive(m);
-                    }
-
-                    @Override
-                    public void onAllDataUploaded() {
-                        Map m = new HashMap();
-                        m.put("status", "onAllDataUploaded");
-                        moduleAdapterCallBack.successKeepAlive(m);
-                    }
-                });
-    }
-
     @JSMethod
     public void downloadData(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
@@ -698,7 +663,7 @@ public class LELModule extends WXModule {
                 map.put("isSuccess", isSuccess);
                 map.put("dataList", new JSONArray(new ArrayList<Object>(dataList)));
                 moduleAdapterCallBack.successKeepAlive(map);
-                uploadData(moduleAdapterCallBack);
+                uploadData(jsonObject,moduleAdapterCallBack);
             }
 
             @Override
@@ -1113,5 +1078,427 @@ public class LELModule extends WXModule {
             }
         });
         insigmaSmartDevice.connectDevice();
+    }
+
+    @JSMethod
+    public void doAssociationFactory(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
+
+        Timer timer = new Timer();
+
+        try {
+            insigmaBluetoothManager = new InsigmaBluetoothManager(mWXSDKInstance.getContext().getApplicationContext(),
+                    new ScannerCallback() {
+                        @Override
+                        public void onDeviceFound(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, SmartDevice smartDevice, Context context, boolean b, SmartDeviceModel smartDeviceModel) {
+                            Map m = new HashMap();
+                            m.put("type", "onDeviceFound");
+//                            m.put("device", JSON.toJSON(smartDeviceModel));
+//                            m.put("device", JSON.toJSON(smartDevice));
+
+                            if(smartDevice.getSerialNumber().equals(jsonObject.getString("smartDeviceSN"))&&smartDevice.isDoorOpen()){
+                                insigmaBluetoothManager.stopScan();
+                                timer.cancel();
+                                moduleAdapterCallBack.error("Door Opened");
+                            }
+//                            JSONObject map = new JSONObject();
+//                            try {
+//                                map.put("IBeaconUUID",smartDevice.getIbeaconUUID());
+//                                map.put("BatteryLevel",smartDevice.getBatteryLevel());
+//                                map.put("CoolerID",smartDevice.getCoolerId());
+//                                map.put("SerialNumber",smartDevice.getSerialNumber());
+//                                map.put("Distance",smartDevice.getDistanceInMeter(mWXSDKInstance.getContext()));
+//                                map.put("DistanceInMM",smartDevice.getSmartShelfDistanceInMM());
+//                                map.put("DistanceRange",smartDevice.getRSSIRange(smartDevice.getDistanceInMeter(mWXSDKInstance.getContext())));
+//                                map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
+//                                map.put("macAddress",smartDevice.getAddress());
+//                                map.put("Rssi",smartDevice.getRssi());
+//                                map.put("Name",smartDevice.getDevice().getName());
+//                                map.put("DeviceType",smartDevice.getDeviceTypeName());
+//                                map.put("DeviceTypeId",smartDevice.getDeviceTypeId());
+//                                map.put("isDoorOpen",smartDevice.isDoorOpen());
+//                                map.put("isMultiDoorEnable",smartDevice.isMultiDoorEnable());
+//                                map.put("isDoorTimeout",smartDevice.isDoorTimeout());
+//                                map.put("SmartDoorCount",smartDevice.getSmartDoorCount());
+//                                map.put("isDoor2Open",smartDevice.isDoor2Open());
+//                                map.put("isDoor2Timeout",smartDevice.isDoor2Timeout());
+//                                map.put("isDoor3Open",smartDevice.isDoor3Open());
+//                                map.put("isDoor3Timeout",smartDevice.isDoor3Timeout());
+
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                            m.put("device", map);
+//                            moduleAdapterCallBack.successKeepAlive(m);
+                        }
+
+                        @Override
+                        public void onScanFinished(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, Context context, boolean b) {
+//                            Map m = new HashMap();
+//                            m.put("type", "onScanFinished");
+//                            m.put("devices", JSONArray.parseArray(JSON.toJSONString(bluetoothLeDeviceStore.getDeviceList())));
+//                            m.put("devices",  new JSONArray(new ArrayList<Object>(bluetoothLeDeviceStore.getDeviceList())));
+//                            smartDevices = bluetoothLeDeviceStore.getDeviceList();
+//                            moduleAdapterCallBack.success(m);
+                        }
+
+                        @Override
+                        public void onScanFailed(int i) {
+//                            Map m = new HashMap();
+//                            m.put("type", "onScanFailed");
+//                            m.put("code", i);
+//                            moduleAdapterCallBack.error(m);
+                        }
+                    });
+            final boolean mIsBluetoothOn = insigmaBluetoothManager.isBluetoothON();
+            final boolean mIsBluetoothLePresent = insigmaBluetoothManager.isBluetoothLeSupported();
+
+            insigmaBluetoothManager.askUserToEnableBluetoothIfNeeded((Activity) mWXSDKInstance.getContext());
+            if (!mIsBluetoothOn || !mIsBluetoothLePresent) {
+                moduleAdapterCallBack.error("IsBluetoothOn or IsBluetoothLePresent?");
+                return;
+            }
+            insigmaBluetoothManager.startScan();
+
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if(insigmaBluetoothManager !=null){
+                        insigmaBluetoothManager.stopScan();
+                        doAssociation(jsonObject,moduleAdapterCallBack);
+                    }
+                }
+            },jsonObject.getLongValue("timeout"));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public void doAssociation(JSONObject jsonObject,ModuleAdapterCallBack moduleAdapterCallBack){
+        getAPI(mWXSDKInstance.getContext()).doAssociation(UserName, jsonObject.getString("coolerSN"), jsonObject.getString("deviceMacAddress")
+                , new WSAssociationCallback() {
+                    @Override
+                    public void onSuccess(AssociationModel associationModel) {
+                        Map m = new HashMap();
+                        m.put("message", associationModel.getMessage());
+                        m.put("success", associationModel.isSuccess());
+                        m.put("status", "onSucess");
+                        moduleAdapterCallBack.success(m);
+                    }
+
+                    @Override
+                    public void onFailure(String s, int i, Exception e) {
+                        Map m = new HashMap();
+                        m.put("message", s);
+                        m.put("code", i);
+                        m.put("exception", e.getMessage());
+                        m.put("status", "onError");
+                        moduleAdapterCallBack.success(m);
+                    }
+                });
+    }
+
+    @JSMethod
+    public void removeAssociationFactory(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
+        insigmaBluetoothManager = new InsigmaBluetoothManager(mWXSDKInstance.getContext().getApplicationContext(),
+                new ScannerCallback() {
+                    @Override
+                    public void onDeviceFound(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, SmartDevice smartDevice, Context context, boolean b, SmartDeviceModel smartDeviceModel) {
+                        Map m = new HashMap();
+                        m.put("type", "onDeviceFound");
+                        if(jsonObject.containsKey("smartDeviceSN")&&jsonObject.getString("smartDeviceSN").equals(smartDevice.getSerialNumber())){
+                            insigmaBluetoothManager.stopScan();
+                            connectDevice(jsonObject,smartDevice,moduleAdapterCallBack);
+                        }
+                    }
+
+                    @Override
+                    public void onScanFinished(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, Context context, boolean b) {
+                        Map m = new HashMap();
+                        m.put("type", "onScanFinished");
+//                            m.put("devices", JSONArray.parseArray(JSON.toJSONString(bluetoothLeDeviceStore.getDeviceList())));
+                        m.put("devices",  new JSONArray(new ArrayList<Object>(bluetoothLeDeviceStore.getDeviceList())));
+                        smartDevices = bluetoothLeDeviceStore.getDeviceList();
+                        moduleAdapterCallBack.success(m);
+                    }
+
+                    @Override
+                    public void onScanFailed(int i) {
+                        Map m = new HashMap();
+                        m.put("type", "onScanFailed");
+                        m.put("code", i);
+                        moduleAdapterCallBack.error(m);
+                        insigmaBluetoothManager.stopScan();
+                    }
+                });
+        final boolean mIsBluetoothOn = insigmaBluetoothManager.isBluetoothON();
+        final boolean mIsBluetoothLePresent = insigmaBluetoothManager.isBluetoothLeSupported();
+
+        insigmaBluetoothManager.askUserToEnableBluetoothIfNeeded((Activity) mWXSDKInstance.getContext());
+        if (!mIsBluetoothOn || !mIsBluetoothLePresent) {
+            moduleAdapterCallBack.error("IsBluetoothOn or IsBluetoothLePresent?");
+            return;
+        }
+        insigmaBluetoothManager.startScan();
+    }
+    public void connectDevice(JSONObject jsonObject,SmartDevice smartDevice,ModuleAdapterCallBack moduleAdapterCallBack){
+        InsigmaSmartDevice insigmaSmartDevice = new InsigmaSmartDevice(mWXSDKInstance.getContext(), smartDevice, new SmartCallback() {
+            @Override
+            public void onDeviceConnected(SmartDevice smartDevice) {
+                downLoadData(jsonObject,smartDevice,moduleAdapterCallBack);
+            }
+
+            @Override
+            public void onDeviceDisconnected(SmartDevice smartDevice) {
+                moduleAdapterCallBack.error("DeviceDisconnected");
+            }
+
+            @Override
+            public void onImageSequenceTableDownloaded(SmartDevice smartDevice, boolean b, org.json.JSONArray jsonArray) {
+
+            }
+
+            @Override
+            public void onImageDeleted(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onImageDownloadProgress(SmartDevice smartDevice, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onImageDownloadCompleted(SmartDevice smartDevice, boolean b, ByteArrayOutputStream byteArrayOutputStream) {
+
+            }
+
+            @Override
+            public void onDataDownloaded(SmartDevice smartDevice, boolean b, ArrayList<BLETagModel> arrayList) {
+
+            }
+
+            @Override
+            public void onDataProgress(SmartDevice smartDevice, int i, int i1) {
+
+            }
+
+            @Override
+            public void onEraseAllEvents(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onRemoteCommandsExecutionProcess(SmartDevice smartDevice, org.json.JSONObject jsonObject, int i, int i1) {
+
+            }
+
+            @Override
+            public void onRemoteCommandsExecutionFinished(SmartDevice smartDevice, int i, String s) {
+
+            }
+
+            @Override
+            public void onUpdate(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onLogUpdate(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
+
+            }
+
+            @Override
+            public void onDFUProgress(SmartDevice smartDevice, int i, int i1, float v, float v1) {
+
+            }
+
+            @Override
+            public void onDFUSuccess(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onDFUFailed(SmartDevice smartDevice, String s) {
+
+            }
+        });
+        insigmaSmartDevice.connectDevice();
+    }
+    public void downLoadData(JSONObject jsonObject,SmartDevice smartDevice,ModuleAdapterCallBack moduleAdapterCallBack){
+        InsigmaSmartDevice insigmaSmartDevice = new InsigmaSmartDevice(mWXSDKInstance.getContext(), smartDevice, new SmartCallback() {
+            @Override
+            public void onDeviceConnected(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onDeviceDisconnected(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onImageSequenceTableDownloaded(SmartDevice smartDevice, boolean b, org.json.JSONArray jsonArray) {
+
+            }
+
+            @Override
+            public void onImageDeleted(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onImageDownloadProgress(SmartDevice smartDevice, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onImageDownloadCompleted(SmartDevice smartDevice, boolean b, ByteArrayOutputStream byteArrayOutputStream) {
+
+            }
+
+            @Override
+            public void onDataDownloaded(SmartDevice smartDevice, boolean b, ArrayList<BLETagModel> arrayList) {
+                uploadData(jsonObject,moduleAdapterCallBack);
+            }
+
+            @Override
+            public void onDataProgress(SmartDevice smartDevice, int i, int i1) {
+                Map m = new HashMap();
+                m.put("status","onProgress");
+                m.put("progress",i);
+                m.put("total",i1);
+                moduleAdapterCallBack.successKeepAlive(m);
+            }
+
+            @Override
+            public void onEraseAllEvents(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onRemoteCommandsExecutionProcess(SmartDevice smartDevice, org.json.JSONObject jsonObject, int i, int i1) {
+
+            }
+
+            @Override
+            public void onRemoteCommandsExecutionFinished(SmartDevice smartDevice, int i, String s) {
+
+            }
+
+            @Override
+            public void onUpdate(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onLogUpdate(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
+
+            }
+
+            @Override
+            public void onDFUProgress(SmartDevice smartDevice, int i, int i1, float v, float v1) {
+
+            }
+
+            @Override
+            public void onDFUSuccess(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onDFUFailed(SmartDevice smartDevice, String s) {
+
+            }
+        });
+        insigmaSmartDevice.downloadData();
+    }
+    public void uploadData(JSONObject jsonObject,ModuleAdapterCallBack moduleAdapterCallBack){
+        getAPI(mWXSDKInstance.getContext()).uploadData(UserName
+                , new WSUploadCallback() {
+
+                    @Override
+                    public void onFailure(UploadStatusModel uploadStatusModel, String Message, int StatusCode, Exception exception) {
+                        Map m = new HashMap();
+                        m.put("message", Message);
+                        m.put("StatusCode", StatusCode);
+                        m.put("exception", exception.getMessage());
+                        m.put("uploadStatusModel",JSON.toJSON(uploadStatusModel));
+                        m.put("statuc","onError");
+                        moduleAdapterCallBack.error(m);
+                    }
+
+                    @Override
+                    public void onSuccess(UploadStatusModel uploadStatusModel, HttpModel httpModel) {
+                        Map m = new HashMap();
+                        m.put("uploadStatusModel",JSON.toJSON(uploadStatusModel));
+                        m.put("httpModel",JSON.toJSON(httpModel));
+                        m.put("status","onSuccess");
+//                        moduleAdapterCallBack.successKeepAlive(m);
+                        removeAssociation(jsonObject,moduleAdapterCallBack);
+                    }
+
+                    @Override
+                    public void onProgress(long Left, String MACAddress, String Message) {
+                        Map m = new HashMap();
+                        m.put("left", Left);
+                        m.put("status", "onProgress");
+                        m.put("MACAddress", MACAddress);
+                        m.put("Message", Message);
+                        moduleAdapterCallBack.successKeepAlive(m);
+                    }
+
+                    @Override
+                    public void onAllDataUploaded() {
+                        Map m = new HashMap();
+                        m.put("status", "onAllDataUploaded");
+                        moduleAdapterCallBack.successKeepAlive(m);
+                    }
+                });
+    }
+    public void removeAssociation(JSONObject jsonObject,ModuleAdapterCallBack moduleAdapterCallBack){
+        getAPI(mWXSDKInstance.getContext()).removeAssociation(UserName, jsonObject.getString("coolerSN"), mSmartDevice.getAddress()
+                , new WSRemoveAssociationCallback() {
+                    @Override
+                    public void onSuccess(RemoveAssociationModel removeAssociationModel) {
+                        Map m = new HashMap();
+                        m.put("message", removeAssociationModel.getMessage());
+                        m.put("success", removeAssociationModel.isSuccess());
+                        m.put("status", "onSuccess");
+                        moduleAdapterCallBack.success(m);
+                    }
+
+                    @Override
+                    public void onFailure(String s, int i, Exception e) {
+                        Map m = new HashMap();
+                        m.put("message", s);
+                        m.put("code", i);
+                        m.put("exception", e.getMessage());
+                        m.put("status", "onError");
+                        moduleAdapterCallBack.error(m);
+                    }
+                });
     }
 }
