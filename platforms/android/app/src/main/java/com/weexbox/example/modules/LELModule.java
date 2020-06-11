@@ -1,4 +1,4 @@
-package com.weexbox.example.LEL;
+package com.weexbox.example.modules;
 
 import android.app.Activity;
 import android.content.Context;
@@ -299,7 +299,7 @@ public class LELModule extends WXModule {
     @JSMethod
     public void launchValidationApp(JSONObject jsonObject, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        boolean b = ValidationUtils.launchValidationApp(mWXSDKInstance.getContext(),UserName,jsonObject.getString("password"),jsonObject.getString("sfaUserId"));
+        boolean b = ValidationUtils.launchValidationApp(mWXSDKInstance.getContext(),UserName,jsonObject.getString("pwd"),jsonObject.getString("uid"));
         if(b){
             moduleAdapterCallBack.success("");
         }else{
