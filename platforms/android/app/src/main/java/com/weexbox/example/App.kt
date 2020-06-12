@@ -5,6 +5,7 @@ import com.lelibrary.androidlelibrary.init.SDKInsigma
 import com.taobao.weex.WXSDKEngine
 import com.weexbox.core.WeexBoxEngine
 import com.weexbox.example.modules.LELModule
+import com.weexbox.example.modules.SmartTagModule
 
 class App : Application() {
 
@@ -17,7 +18,7 @@ class App : Application() {
         // 开启调试
         WeexBoxEngine.isDebug = true
         SDKInsigma.init(this,true)
-        WXSDKEngine.registerModule("SmartTag",LELModule::class.java)
+        WXSDKEngine.registerModule("SmartTag", SmartTagModule::class.java)
         WXSDKEngine.registerModule("event", EventModule::class.java)
     }
 

@@ -25,6 +25,7 @@ import com.lelibrary.androidlelibrary.sdk.callback.WSAssociationCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSCoolerCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSDeviceCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSRemoveAssociationCallback;
+import com.lelibrary.androidlelibrary.sdk.callback.WSStringCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSUploadCallback;
 import com.lelibrary.androidlelibrary.sdk.model.AssociationModel;
 import com.lelibrary.androidlelibrary.sdk.model.CoolerModel;
@@ -1209,7 +1210,7 @@ public class LELModule extends WXModule {
                         m.put("type", "onDeviceFound");
                         if(jsonObject.containsKey("smartDeviceSN")&&jsonObject.getString("smartDeviceSN").equals(smartDevice.getSerialNumber())){
                             insigmaBluetoothManager.stopScan();
-                            connectDevice(jsonObject,smartDevice,moduleAdapterCallBack);
+                            // connectDevice(jsonObject,smartDevice,moduleAdapterCallBack);
                         }
                     }
 
@@ -1221,6 +1222,20 @@ public class LELModule extends WXModule {
                         m.put("devices",  new JSONArray(new ArrayList<Object>(bluetoothLeDeviceStore.getDeviceList())));
                         smartDevices = bluetoothLeDeviceStore.getDeviceList();
                         moduleAdapterCallBack.success(m);
+
+
+                        getAPI(mWXSDKInstance.getContext()).getDeviceWhiteListData(UserName, smartDevices.get(0).getSerialNumber(), new WSStringCallback() {
+                            @Override
+                            public void onSuccess(HttpModel result) {
+                                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onSuccess");
+                                connectDevice(jsonObject,smartDevices.get(0),moduleAdapterCallBack);
+                            }
+
+                            @Override
+                            public void onFailure(String Message, int StatusCode, Exception exception) {
+                                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onFailure");
+                            }
+                        });
                     }
 
                     @Override
@@ -1246,95 +1261,99 @@ public class LELModule extends WXModule {
         InsigmaSmartDevice insigmaSmartDevice = new InsigmaSmartDevice(mWXSDKInstance.getContext(), smartDevice, new SmartCallback() {
             @Override
             public void onDeviceConnected(SmartDevice smartDevice) {
+                // ToastUtil.showLongToast(mWXSDKInstance.getContext(), "0");
                 downLoadData(jsonObject,smartDevice,moduleAdapterCallBack);
             }
 
             @Override
             public void onDeviceDisconnected(SmartDevice smartDevice) {
-                moduleAdapterCallBack.error("DeviceDisconnected");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "17");
+               // moduleAdapterCallBack.error("DeviceDisconnected");
             }
 
             @Override
             public void onImageSequenceTableDownloaded(SmartDevice smartDevice, boolean b, org.json.JSONArray jsonArray) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "1");
             }
 
             @Override
             public void onImageDeleted(SmartDevice smartDevice, boolean b) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "2");
             }
 
             @Override
             public void onImageDownloadProgress(SmartDevice smartDevice, int i, int i1, int i2) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "3");
             }
 
             @Override
             public void onImageDownloadCompleted(SmartDevice smartDevice, boolean b, ByteArrayOutputStream byteArrayOutputStream) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "4");
             }
 
             @Override
             public void onDataDownloaded(SmartDevice smartDevice, boolean b, ArrayList<BLETagModel> arrayList) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "5");
             }
 
             @Override
             public void onDataProgress(SmartDevice smartDevice, int i, int i1) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "6");
             }
 
             @Override
             public void onEraseAllEvents(SmartDevice smartDevice, boolean b) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "7");
             }
 
             @Override
             public void onRemoteCommandsExecutionProcess(SmartDevice smartDevice, org.json.JSONObject jsonObject, int i, int i1) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "8");
             }
 
             @Override
             public void onRemoteCommandsExecutionFinished(SmartDevice smartDevice, int i, String s) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "9");
             }
 
             @Override
             public void onUpdate(SmartDevice smartDevice, String s) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "10");
             }
 
             @Override
             public void onLogUpdate(SmartDevice smartDevice, String s) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "11");
             }
 
             @Override
             public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "12");
             }
 
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "13");
             }
 
             @Override
             public void onDFUProgress(SmartDevice smartDevice, int i, int i1, float v, float v1) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "14");
             }
 
             @Override
             public void onDFUSuccess(SmartDevice smartDevice) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "15");
             }
 
             @Override
             public void onDFUFailed(SmartDevice smartDevice, String s) {
-
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "16");
             }
         });
-        insigmaSmartDevice.connectDevice();
+        if (insigmaSmartDevice.isDisconnected()) {
+            insigmaSmartDevice.connectDevice();
+        }
     }
     public void downLoadData(JSONObject jsonObject,SmartDevice smartDevice,ModuleAdapterCallBack moduleAdapterCallBack){
         InsigmaSmartDevice insigmaSmartDevice = new InsigmaSmartDevice(mWXSDKInstance.getContext(), smartDevice, new SmartCallback() {
