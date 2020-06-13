@@ -28,6 +28,7 @@ import com.lelibrary.androidlelibrary.sdk.callback.WSCoolerCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSDeviceCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSRemoveAssociationCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSStringCallback;
+import com.lelibrary.androidlelibrary.sdk.callback.WSStringProgressCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSUploadCallback;
 import com.lelibrary.androidlelibrary.sdk.model.AssociationModel;
 import com.lelibrary.androidlelibrary.sdk.model.CoolerModel;
@@ -67,6 +68,7 @@ import static com.litesuits.common.utils.HandlerUtil.runOnUiThread;
 public class SmartTagModule extends WXModule
 {
     private SmartTagFactory smartTagFactory = null;
+    private ModuleAdapterCallBack downloadAdapterCallBack = null;
     public void isGranted(Context context, LELModule.doSomething dd){
         AndPermission.with(context).requestCode(111).permission(CAMERA,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION).rationale(new RationaleListener() {
             @Override
@@ -118,57 +120,203 @@ public class SmartTagModule extends WXModule
                 public void onDeviceFound(SmartDevice var3, SmartDeviceModel var6) {
                     ArrayList<JSONObject> devices = smartTagFactory.updateDevice(var3,_smartDeviceSN);
                     Map m = new HashMap();
+                    m.put("status","onDeviceFound");
                     m.put("list",devices);
                     moduleAdapterCallBack.successKeepAlive(m);
                 }
                 @Override
                 public void onScanFinished(BluetoothLeDeviceStore var2) {
-
+                    moduleAdapterCallBack.successKeepAlive("完成");
                 }
 
                 @Override
                 public void onScanFailed(int var1) {
-                    moduleAdapterCallBack.error("搜索SmartTag失败!");
+                    moduleAdapterCallBack.errorKeepAlive("搜索SmartTag失败!");
                 }
                 @Override
                 public void onError(String var1) {
-                    moduleAdapterCallBack.error(var1);
+                    moduleAdapterCallBack.errorKeepAlive(var1);
                 }
             });
         }else {
-            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
+            moduleAdapterCallBack.errorKeepAlive("没有正确的初始化，请先初始化配置");
         }
     }
 
     @JSMethod(uiThread = false)
     public void stopScan(){
-
+        smartTagFactory.stopScan();
     }
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void doAssociation(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
-        moduleAdapterCallBack.successKeepAlive("成功");
+        String _CoolerSN = optionObj.getString("CoolerSN");
+        String _deviceMacAddress = optionObj.getString("deviceMacAddress");
+        if(_CoolerSN.isEmpty() || _deviceMacAddress.isEmpty()){
+            moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
+            return;
+        }
+        if(smartTagFactory!=null){
+            smartTagFactory.doAssociation(_CoolerSN,_deviceMacAddress, new WSAssociationCallback() {
+                        @Override
+                        public void onSuccess(AssociationModel associationModel) {
+                            Map m = new HashMap();
+                            m.put("message", associationModel.getMessage());
+                            m.put("success", associationModel.isSuccess());
+                            moduleAdapterCallBack.success(m);
+                        }
+
+                        @Override
+                        public void onFailure(String s, int i, Exception e) {
+                            Map m = new HashMap();
+                            m.put("message", s);
+                            m.put("code", i);
+                            m.put("exception", e.getMessage());
+                            moduleAdapterCallBack.error(m);
+                        }
+                    });
+        }else{
+            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
+        }
     }
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void removeAssociation(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
-        moduleAdapterCallBack.successKeepAlive("成功");
+        String _CoolerSN = optionObj.getString("CoolerSN");
+        String _deviceMacAddress = optionObj.getString("deviceMacAddress");
+        if(_CoolerSN.isEmpty() || _deviceMacAddress.isEmpty()){
+            moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
+            return;
+        }
+        if(smartTagFactory!=null){
+            smartTagFactory.removeAssociation(_CoolerSN,_deviceMacAddress, new WSRemoveAssociationCallback() {
+                        @Override
+                        public void onSuccess(RemoveAssociationModel removeAssociationModel) {
+                            Map m = new HashMap();
+                            m.put("message", removeAssociationModel.getMessage());
+                            m.put("success", removeAssociationModel.isSuccess());
+                            moduleAdapterCallBack.success(m);
+                        }
+
+                        @Override
+                        public void onFailure(String s, int i, Exception e) {
+                            Map m = new HashMap();
+                            m.put("message", s);
+                            m.put("code", i);
+                            m.put("exception", e.getMessage());
+                            moduleAdapterCallBack.error(m);
+                        }
+                    });
+        }else{
+            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
+        }
     }
 
     @JSMethod
     public void connectDevice(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
-        moduleAdapterCallBack.successKeepAlive("成功");
+        String _smartDeviceSN = optionObj.getString("smartDeviceSN");
+        smartTagFactory.stopScan();
+        smartTagFactory.connect(smartTagFactory.getDeviceBySN(_smartDeviceSN), new SmartConnectCallback() {
+            @Override
+            public void onDeviceConnected() {
+                JSONObject jdata = new JSONObject();
+                jdata.put("status", "onConnected");
+                jdata.put("message","已连接成功");
+                moduleAdapterCallBack.successKeepAlive(jdata);
+            }
+            @Override
+            public void onDeviceDisconnected() {
+                JSONObject jdata = new JSONObject();
+                jdata.put("status", "onDisconnected");
+                jdata.put("message","连接断开");
+                moduleAdapterCallBack.successKeepAlive(jdata);
+            }
+            @Override
+            public void onDataProgress(int currentIndex, int totalCount) {
+                // 下载进度条
+                Map m = new HashMap();
+                JSONObject jdata = new JSONObject();
+                m.put("status", "onProgress");
+                try {
+                    jdata.put("total",totalCount);
+                    jdata.put("current",currentIndex);
+                    jdata.put("message","下载数据...");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                m.put("progress", jdata);
+                if(downloadAdapterCallBack!=null)downloadAdapterCallBack.successKeepAlive(m);
+            }
+
+            @Override
+            public void onDataDownloaded(boolean isSuccess, ArrayList<BLETagModel> dataList) {
+                if(isSuccess && dataList != null){
+                    //上传数据
+                    uploadData(downloadAdapterCallBack);
+                }else{
+                    Map m = new HashMap();
+                    JSONObject jdata = new JSONObject();
+                    m.put("status", "onProgress");
+                    jdata.put("message","Data Download Fail OR Data Not Available...");
+                    m.put("progress", jdata);
+                    if(downloadAdapterCallBack!=null)downloadAdapterCallBack.successKeepAlive(m);
+                }
+            }
+        });
     }
 
     @JSMethod
-    public void uploadData(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
+    public void downloadUploadData(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        moduleAdapterCallBack.successKeepAlive("成功");
+        if (smartTagFactory.insigmaSmartDevice != null && smartTagFactory.insigmaSmartDevice.isDisconnected()) {
+            moduleAdapterCallBack.errorKeepAlive("Device Disconnected, Please Reconnect");
+            return;
+        }else{
+            downloadAdapterCallBack = moduleAdapterCallBack;
+            smartTagFactory.insigmaSmartDevice.downloadData();
+        }
     }
 
+    private void uploadData(ModuleAdapterCallBack mAdaptercb){
+        if(smartTagFactory.smartServerAPI.isDataAvailableForUpload()){
+            smartTagFactory.smartServerAPI.uploadDataUploadDownloadLog(smartTagFactory._userName, new WSStringProgressCallback() {
+                long total = 0;
+                @Override
+                public void onProgress(long l, String s) {
+                    // 上传进度条
+                    Map m = new HashMap();
+                    JSONObject jdata = new JSONObject();
+                    if(total==0) total = l;
+                    m.put("status", "onProgress");
+                    try {
+                        jdata.put("total",total);
+                        jdata.put("current",total-l);
+                        jdata.put("message","上传中...");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    m.put("progress", jdata);
+                    mAdaptercb.successKeepAlive(m);
+                }
+
+                @Override
+                public void onSuccess(HttpModel httpModel) {
+                    total = 0;
+                    //上传完成
+                }
+
+                @Override
+                public void onFailure(String s, int i, Exception e) {
+                    total = 0;
+                    mAdaptercb.error(s);
+                    //上传失败
+                }
+            });
+        }
+    }
 
  /*#################################################################################################*/
     static class SmartTagFactory implements ScannerCallback
@@ -178,9 +326,10 @@ public class SmartTagModule extends WXModule
         private static InsigmaBluetoothManager insigmaBluetoothManager = null;
         private static int _scanState = 0;
         private Context context = null;
-        private SmartTagCallback mSmartInterface;
+        private static SmartTagCallback mSmartInterface;
         SmartTagFactory(String userName,String apiKey,Integer server_Index,Context _context){
             context = _context;
+            mSmartInterface = null;
             smartServerAPI = getInstanceSmartAPI(context);
             smartServerAPI.setAPIKey(apiKey);
             smartServerAPI.setAccessURL(server_Index);
@@ -225,10 +374,10 @@ public class SmartTagModule extends WXModule
         }
 
         private void stopScan(){
-            _scanState = 0;
             if(insigmaBluetoothManager!=null){
                 insigmaBluetoothManager.stopScan();
             }
+            _scanState = 0;
         }
 
         private InsigmaSmartDevice insigmaSmartDevice = null;
@@ -405,6 +554,14 @@ public class SmartTagModule extends WXModule
             _devices.clear();
             _deviceSN.clear();
             _smartdevices.clear();
+        }
+
+        private void doAssociation(String coolerSN,String deviceMacAddress, WSAssociationCallback cb){
+            smartServerAPI.doAssociation(_userName,coolerSN,deviceMacAddress,cb);
+        }
+
+        private void removeAssociation(String coolerSN,String deviceMacAddress, WSRemoveAssociationCallback cb) {
+            smartServerAPI.removeAssociation(_userName, coolerSN, deviceMacAddress, cb);
         }
 
         @Override
