@@ -46,10 +46,12 @@ public class LCModule extends WXModule {
         });
 
         avFile.saveInBackground().subscribe(new Observer<AVFile>() {
+//            public void onSubscribe(Disposable disposable) {
+//                JSONObject jsonObject1 = new JSONObject();
+//                jsonObject1.put("status", "onSubscribe");
+//                done.invoke(jsonObject1);
+//            }
             public void onSubscribe(Disposable disposable) {
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("status", "onSubscribe");
-                done.invoke(jsonObject1);
             }
 
             public void onNext(AVFile file) {

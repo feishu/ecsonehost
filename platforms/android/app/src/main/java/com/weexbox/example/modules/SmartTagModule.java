@@ -95,7 +95,7 @@ public class SmartTagModule extends WXModule
 
     @JSMethod(uiThread = false)
     public void init(JSONObject optionObj,JSCallback successCallBack, JSCallback errorCallBack) {
-        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack);
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack,errorCallBack);
         if(optionObj==null) moduleAdapterCallBack.error("初始化参数不能为空");
         else {
             String _apIkey = optionObj.getString("APIkey");
@@ -112,7 +112,7 @@ public class SmartTagModule extends WXModule
 
     @JSMethod(uiThread = false)
     public void startScan(JSONObject optionsObj, JSCallback successCallBack, JSCallback errorCallBack) {
-        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack);
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack,errorCallBack);
         String _smartDeviceSN = optionsObj.getString("smartDeviceSN");
         if(smartTagFactory!=null){
             smartTagFactory.startScan(mWXSDKInstance.getContext(),new SmartTagCallback(){
@@ -126,7 +126,10 @@ public class SmartTagModule extends WXModule
                 }
                 @Override
                 public void onScanFinished(BluetoothLeDeviceStore var2) {
-                    moduleAdapterCallBack.successKeepAlive("完成");
+                    Map m = new HashMap();
+                    m.put("status","onScanFinished");
+                   // m.put("list",var2.getDeviceList());
+                    moduleAdapterCallBack.successKeepAlive(m);
                 }
 
                 @Override
@@ -153,7 +156,7 @@ public class SmartTagModule extends WXModule
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
         String _CoolerSN = optionObj.getString("CoolerSN");
         String _deviceMacAddress = optionObj.getString("deviceMacAddress");
-        if(_CoolerSN.isEmpty() || _deviceMacAddress.isEmpty()){
+        if((_CoolerSN!=null&&_CoolerSN.isEmpty()) || (_deviceMacAddress!=null && _deviceMacAddress.isEmpty())){
             moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
             return;
         }
@@ -172,7 +175,7 @@ public class SmartTagModule extends WXModule
                             Map m = new HashMap();
                             m.put("message", s);
                             m.put("code", i);
-                            m.put("exception", e.getMessage());
+                            m.put("exception", e!=null?e.getMessage():"");
                             moduleAdapterCallBack.error(m);
                         }
                     });
@@ -186,7 +189,7 @@ public class SmartTagModule extends WXModule
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
         String _CoolerSN = optionObj.getString("CoolerSN");
         String _deviceMacAddress = optionObj.getString("deviceMacAddress");
-        if(_CoolerSN.isEmpty() || _deviceMacAddress.isEmpty()){
+        if((_CoolerSN!=null && _CoolerSN.isEmpty()) || (_deviceMacAddress!=null && _deviceMacAddress.isEmpty())){
             moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
             return;
         }
@@ -205,7 +208,7 @@ public class SmartTagModule extends WXModule
                             Map m = new HashMap();
                             m.put("message", s);
                             m.put("code", i);
-                            m.put("exception", e.getMessage());
+                            m.put("exception", e!=null?e.getMessage():"");
                             moduleAdapterCallBack.error(m);
                         }
                     });
@@ -214,7 +217,7 @@ public class SmartTagModule extends WXModule
         }
     }
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void connectDevice(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
         String _smartDeviceSN = optionObj.getString("smartDeviceSN");
@@ -259,7 +262,7 @@ public class SmartTagModule extends WXModule
                 }else{
                     Map m = new HashMap();
                     JSONObject jdata = new JSONObject();
-                    m.put("status", "onProgress");
+                    m.put("status", "onDataDownloaded");
                     jdata.put("message","Data Download Fail OR Data Not Available...");
                     m.put("progress", jdata);
                     if(downloadAdapterCallBack!=null)downloadAdapterCallBack.successKeepAlive(m);
@@ -268,7 +271,7 @@ public class SmartTagModule extends WXModule
         });
     }
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void downloadUploadData(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
         if (smartTagFactory.insigmaSmartDevice != null && smartTagFactory.insigmaSmartDevice.isDisconnected()) {
@@ -280,6 +283,14 @@ public class SmartTagModule extends WXModule
         }
     }
 
+    @JSMethod(uiThread = false)
+    public void showProgress(JSONObject optionObj){
+        smartTagFactory.showProgress(optionObj.getString("message"));
+    }
+    @JSMethod(uiThread = false)
+    public void dismissProgress(){
+        smartTagFactory.dismissProgress();
+    }
     private void uploadData(ModuleAdapterCallBack mAdaptercb){
         if(smartTagFactory.smartServerAPI.isDataAvailableForUpload()){
             smartTagFactory.smartServerAPI.uploadDataUploadDownloadLog(smartTagFactory._userName, new WSStringProgressCallback() {
@@ -305,7 +316,12 @@ public class SmartTagModule extends WXModule
                 @Override
                 public void onSuccess(HttpModel httpModel) {
                     total = 0;
-                    //上传完成
+                    Map m = new HashMap();
+                    JSONObject jdata = new JSONObject();
+                    m.put("status", "onDataDownloaded");
+                    jdata.put("message","上传完成");
+                    m.put("progress", jdata);
+                    mAdaptercb.successKeepAlive(m);
                 }
 
                 @Override
@@ -465,7 +481,6 @@ public class SmartTagModule extends WXModule
                     }
                 });
             }
-
             if (insigmaSmartDevice.isDisconnected()) {
                 if(!smartDevice.isDeviceInWhiteList(context)){
                     smartServerAPI.getDeviceWhiteListData(_userName, smartDevice.getSerialNumber(), new WSStringCallback() {
@@ -484,10 +499,18 @@ public class SmartTagModule extends WXModule
                     insigmaSmartDevice.connectDevice();
                 }
             } else {
+                //连接之前先关闭
+                deviceDisconnect();
                 //CommonUtils.showAlertDialog(this, "Device Already Connected", null, false);
             }
         }
-
+        private void deviceDisconnect() {
+            if (insigmaSmartDevice != null) {
+                if (!insigmaSmartDevice.isDisconnected()) {
+                    insigmaSmartDevice.disconnectDevice();
+                }
+            }
+        }
         private int getScanState(){
             return  _scanState;
         }
@@ -589,7 +612,7 @@ public class SmartTagModule extends WXModule
                             if (!progressDialog.isShowing()) {
                                 progressDialog = new ProgressDialog(context);
                                 if (TextUtils.isEmpty(message)) {
-                                    progressDialog.setMessage("上传中");
+                                    progressDialog.setMessage("上传中...");
                                 } else {
                                     progressDialog.setMessage(message);
                                 }
@@ -598,7 +621,7 @@ public class SmartTagModule extends WXModule
                                 progressDialog.show();
                             } else {
                                 if (TextUtils.isEmpty(message)) {
-                                    progressDialog.setMessage("请等。。");
+                                    progressDialog.setMessage("请稍等...");
                                 } else {
                                     progressDialog.setMessage(message);
                                 }
@@ -606,7 +629,7 @@ public class SmartTagModule extends WXModule
                         } else {
                             progressDialog = new ProgressDialog(context);
                             if (TextUtils.isEmpty(message)) {
-                                progressDialog.setMessage("121212");
+                                progressDialog.setMessage("加载中...");
                             } else {
                                 progressDialog.setMessage(message);
                             }
