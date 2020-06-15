@@ -152,72 +152,6 @@ public class SmartTagModule extends WXModule
     }
 
     @JSMethod(uiThread = false)
-    public void doAssociation(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack){
-        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
-        String _CoolerSN = optionObj.getString("CoolerSN");
-        String _deviceMacAddress = optionObj.getString("deviceMacAddress");
-        if((_CoolerSN!=null&&_CoolerSN.isEmpty()) || (_deviceMacAddress!=null && _deviceMacAddress.isEmpty())){
-            moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
-            return;
-        }
-        if(smartTagFactory!=null){
-            smartTagFactory.doAssociation(_CoolerSN,_deviceMacAddress, new WSAssociationCallback() {
-                        @Override
-                        public void onSuccess(AssociationModel associationModel) {
-                            Map m = new HashMap();
-                            m.put("message", associationModel.getMessage());
-                            m.put("success", associationModel.isSuccess());
-                            moduleAdapterCallBack.success(m);
-                        }
-
-                        @Override
-                        public void onFailure(String s, int i, Exception e) {
-                            Map m = new HashMap();
-                            m.put("message", s);
-                            m.put("code", i);
-                            m.put("exception", e!=null?e.getMessage():"");
-                            moduleAdapterCallBack.error(m);
-                        }
-                    });
-        }else{
-            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
-        }
-    }
-
-    @JSMethod(uiThread = false)
-    public void removeAssociation(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack){
-        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
-        String _CoolerSN = optionObj.getString("CoolerSN");
-        String _deviceMacAddress = optionObj.getString("deviceMacAddress");
-        if((_CoolerSN!=null && _CoolerSN.isEmpty()) || (_deviceMacAddress!=null && _deviceMacAddress.isEmpty())){
-            moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
-            return;
-        }
-        if(smartTagFactory!=null){
-            smartTagFactory.removeAssociation(_CoolerSN,_deviceMacAddress, new WSRemoveAssociationCallback() {
-                        @Override
-                        public void onSuccess(RemoveAssociationModel removeAssociationModel) {
-                            Map m = new HashMap();
-                            m.put("message", removeAssociationModel.getMessage());
-                            m.put("success", removeAssociationModel.isSuccess());
-                            moduleAdapterCallBack.success(m);
-                        }
-
-                        @Override
-                        public void onFailure(String s, int i, Exception e) {
-                            Map m = new HashMap();
-                            m.put("message", s);
-                            m.put("code", i);
-                            m.put("exception", e!=null?e.getMessage():"");
-                            moduleAdapterCallBack.error(m);
-                        }
-                    });
-        }else{
-            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
-        }
-    }
-
-    @JSMethod(uiThread = false)
     public void connectDevice(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
         String _smartDeviceSN = optionObj.getString("smartDeviceSN");
@@ -280,6 +214,147 @@ public class SmartTagModule extends WXModule
         }else{
             downloadAdapterCallBack = moduleAdapterCallBack;
             smartTagFactory.insigmaSmartDevice.downloadData();
+        }
+    }
+
+    @JSMethod(uiThread = false)
+    public void checkDeviceAssociation(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack){
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
+        String _smartDeviceSN = optionObj.getString("smartDeviceSN");
+        if((_smartDeviceSN==null || _smartDeviceSN.isEmpty())){
+            moduleAdapterCallBack.error("SmartTag SerialNumber 不能为空");
+            return;
+        }
+        if(smartTagFactory!=null){
+            smartTagFactory.checkDeviceAssociation(_smartDeviceSN,new WSDeviceCallback() {
+                @Override
+                public void onSuccess(DeviceModel deviceModel) {
+                    JSONObject map = new JSONObject();
+                    map.put("message",deviceModel.getMessage());
+                    map.put("success",deviceModel.isSuccess());
+                    JSONObject devicedata = new JSONObject();
+                    devicedata.put("CoolerSN",deviceModel.getDeviceData().getAssociatedCoolerSerialNumber());
+                    devicedata.put("isAvailableForAssociation",deviceModel.getDeviceData().isAvailableForAssociation());
+                    map.put("deviceData",devicedata);
+                    moduleAdapterCallBack.success(map);
+                }
+                @Override
+                public void onFailure(String s, int i, Exception e) {
+                    Map m = new HashMap();
+                    m.put("message", s);
+                    m.put("code", i);
+                    m.put("exception", e!=null?e.getMessage():"");
+                    moduleAdapterCallBack.error(m);
+                }
+            });
+        }else {
+            moduleAdapterCallBack.errorKeepAlive("没有正确的初始化，请先初始化配置");
+        }
+    }
+
+    @JSMethod(uiThread = false)
+    public void checkCoolerAssociation(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack){
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
+        String _coolerSN = optionObj.getString("CoolerSN");
+        if((_coolerSN==null || _coolerSN.isEmpty())){
+            moduleAdapterCallBack.error("冰柜资产编号不能为空");
+            return;
+        }
+        if(smartTagFactory!=null) {
+            smartTagFactory.checkCoolerAssociation(_coolerSN,new WSCoolerCallback() {
+                @Override
+                public void onSuccess(CoolerModel coolerModel) {
+                    JSONObject map = new JSONObject();
+                    map.put("message",coolerModel.getMessage());
+                    map.put("success",coolerModel.isSuccess());
+                    JSONObject coolerdata = new JSONObject();
+                    coolerdata.put("AssetSerialNumber",coolerModel.getAssetSerialNumber());
+                    coolerdata.put("AssetType",coolerModel.getAssetType());
+                    coolerdata.put("AssetTypeInstallationImages",coolerModel.getAssetTypeInstallationImages());
+                    coolerdata.put("EquipmentNumber",coolerModel.getEquipmentNumber());
+                    coolerdata.put("OutletCode",coolerModel.getOutletCode());
+                    coolerdata.put("OutletName",coolerModel.getOutletName());
+                    coolerdata.put("SmartDeviceSerial",coolerModel.getSmartDeviceSerial());
+                    coolerdata.put("isAssociated",coolerModel.isAssociated());
+                    map.put("coolerData",coolerdata);
+                    moduleAdapterCallBack.success(map);
+                }
+
+                @Override
+                public void onFailure(String s, int i, Exception e) {
+                    Map m = new HashMap();
+                    m.put("message", s);
+                    m.put("code", i);
+                    m.put("exception", e.getMessage());
+                    moduleAdapterCallBack.success(m);
+                }
+            });
+        }
+    }
+
+    @JSMethod(uiThread = false)
+    public void doAssociation(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack){
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
+        String _CoolerSN = optionObj.getString("CoolerSN");
+        String _deviceMacAddress = optionObj.getString("deviceMacAddress");
+        if((_CoolerSN!=null&&_CoolerSN.isEmpty()) || (_deviceMacAddress!=null && _deviceMacAddress.isEmpty())){
+            moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
+            return;
+        }
+        if(smartTagFactory!=null){
+            smartTagFactory.doAssociation(_CoolerSN,_deviceMacAddress, new WSAssociationCallback() {
+                @Override
+                public void onSuccess(AssociationModel associationModel) {
+                    Map m = new HashMap();
+                    m.put("message", associationModel.getMessage());
+                    m.put("success", associationModel.isSuccess());
+                    moduleAdapterCallBack.success(m);
+                }
+
+                @Override
+                public void onFailure(String s, int i, Exception e) {
+                    Map m = new HashMap();
+                    m.put("message", s);
+                    m.put("code", i);
+                    m.put("exception", e!=null?e.getMessage():"");
+                    moduleAdapterCallBack.error(m);
+                }
+            });
+        }else{
+            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
+        }
+    }
+
+    @JSMethod(uiThread = false)
+    public void removeAssociation(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack){
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
+        String _CoolerSN = optionObj.getString("CoolerSN");
+        String _deviceMacAddress = optionObj.getString("deviceMacAddress");
+        if((_CoolerSN!=null && _CoolerSN.isEmpty()) || (_deviceMacAddress!=null && _deviceMacAddress.isEmpty())){
+            moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
+            return;
+        }
+        if(smartTagFactory!=null){
+            smartTagFactory.removeAssociation(_CoolerSN,_deviceMacAddress, new WSRemoveAssociationCallback() {
+                @Override
+                public void onSuccess(RemoveAssociationModel removeAssociationModel) {
+                    Map m = new HashMap();
+                    m.put("message", removeAssociationModel.getMessage());
+                    m.put("success", removeAssociationModel.isSuccess());
+                    moduleAdapterCallBack.success(m);
+                }
+
+                @Override
+                public void onFailure(String s, int i, Exception e) {
+                    Map m = new HashMap();
+                    m.put("message", s);
+                    m.put("code", i);
+                    m.put("exception", e!=null?e.getMessage():"");
+                    moduleAdapterCallBack.error(m);
+                }
+            });
+        }else{
+            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
         }
     }
 
@@ -504,6 +579,15 @@ public class SmartTagModule extends WXModule
                 //CommonUtils.showAlertDialog(this, "Device Already Connected", null, false);
             }
         }
+
+        private void checkDeviceAssociation(String deviceSerial, WSDeviceCallback cb){
+            smartServerAPI.checkDeviceAssociation(_userName,deviceSerial,cb);
+        }
+
+        private void checkCoolerAssociation(String coolerSerial,WSCoolerCallback cb){
+            smartServerAPI.checkCoolerAssociation(_userName,coolerSerial,cb);
+        }
+
         private void deviceDisconnect() {
             if (insigmaSmartDevice != null) {
                 if (!insigmaSmartDevice.isDisconnected()) {
@@ -511,6 +595,7 @@ public class SmartTagModule extends WXModule
                 }
             }
         }
+
         private int getScanState(){
             return  _scanState;
         }
