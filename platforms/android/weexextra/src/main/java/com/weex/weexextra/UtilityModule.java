@@ -1,10 +1,14 @@
 package com.weex.weexextra;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
@@ -25,11 +29,16 @@ import com.taobao.weex.ui.component.WXComponent;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class UtilityModule extends WXModule {
 
@@ -243,25 +252,25 @@ public class UtilityModule extends WXModule {
     @JSMethod
     public void captureView(JSONObject args, JSCallback success, JSCallback fail, JSCallback complete) {
         ModuleAdapterCallBack adapter = new ModuleAdapterCallBack(success, fail, complete);
-        String ref = args.getString("ref");
-        if (TextUtils.isEmpty(ref)) {
-            adapter.error("captureView:fail ref is null");
-            return;
-        }
-        WXComponent component = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), ref);
-        if(component==null){
-            adapter.error("captureView:not found component by ref="+ref);
-            return;
-        }
-        View view = component.getHostView();
+//        String ref = args.getString("ref");
+//        if (TextUtils.isEmpty(ref)) {
+//            adapter.error("captureView:fail ref is null");
+//            return;
+//        }
+//        WXComponent component = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), ref);
+//        if(component==null){
+//            adapter.error("captureView:not found component by ref="+ref);
+//            return;
+//        }
+//        View view = component.getHostView();
         Bitmap bitmap = null;
-        if (view != null) {
-            if (view instanceof TextureView) {
-                bitmap = ((TextureView) view).getBitmap();
-            } else {
-                bitmap = loadBitmapFromView(component.getHostView());
-            }
-        }
+//        if (view != null) {
+//            if (view instanceof TextureView) {
+//                bitmap = ((TextureView) view).getBitmap();
+//            } else {
+                bitmap = viewConversionBitmap(mWXSDKInstance.getContext());
+//            }
+//        }
         if(bitmap!=null){
             //保存图片,
            String cachePath=FileUtil.saveBitmapToCache(bitmap,null);
@@ -315,14 +324,22 @@ public class UtilityModule extends WXModule {
         mWXSDKInstance.getContext().startActivity(intent);
     }
 
-    private Bitmap loadBitmapFromView(View view) {
-        int w = view.getWidth();
-        int h = view.getHeight();
-        Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(bmp);
-        view.draw(c);
-        return bmp;
+    private Bitmap viewConversionBitmap(Context context) {
+//        if (view == null) {
+//            return null;
+//        }
+        View dView = ((Activity)context).getWindow().getDecorView();
+        dView.setDrawingCacheEnabled(true);
+        dView.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(dView.getDrawingCache());
+        if (bitmap != null) {
+            try {
+                Log.i("TAG", "截屏成功");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return bitmap;
     }
-
 
 }
