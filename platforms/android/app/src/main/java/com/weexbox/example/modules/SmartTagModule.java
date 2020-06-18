@@ -286,8 +286,8 @@ public class SmartTagModule extends WXModule
                     Map m = new HashMap();
                     m.put("message", s);
                     m.put("code", i);
-                    m.put("exception", e.getMessage());
-                    moduleAdapterCallBack.success(m);
+                    m.put("exception", e!=null?e.getMessage():"");
+                    moduleAdapterCallBack.error(m);
                 }
             });
         }
@@ -403,7 +403,11 @@ public class SmartTagModule extends WXModule
                 @Override
                 public void onFailure(String s, int i, Exception e) {
                     total = 0;
-                    mAdaptercb.error(s);
+                    Map m = new HashMap();
+                    m.put("message", s);
+                    m.put("code", i);
+                    m.put("exception", e!=null?e.getMessage():"");
+                    mAdaptercb.error(m);
                     //上传失败
                 }
             });
