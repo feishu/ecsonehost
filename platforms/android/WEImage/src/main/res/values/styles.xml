@@ -3,6 +3,8 @@
 
     <style name="ImagePickerTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:fitsSystemWindows">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <style name="ImagePickerThemeFullScreen" parent="ImagePickerTheme">

@@ -13,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -99,6 +101,15 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         if (data != null && data.getExtras() != null){
             directPhoto = data.getBooleanExtra(EXTRAS_TAKE_PICKERS,false); // 默认不是直接打开相机
             if (directPhoto){
+                findViewById(R.id.content).setVisibility(View.GONE);
+                Window mWindow = getWindow();
+                mWindow.setGravity(Gravity.LEFT | Gravity.TOP);
+                WindowManager.LayoutParams attrParams = mWindow.getAttributes();
+                attrParams.x = 0;
+                attrParams.y = 0;
+                attrParams.height = 1;
+                attrParams.width = 1;
+                mWindow.setAttributes(attrParams);
                 if (!(checkPermission(Manifest.permission.CAMERA))) {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, ImageGridActivity.REQUEST_PERMISSION_CAMERA);
                 } else {
