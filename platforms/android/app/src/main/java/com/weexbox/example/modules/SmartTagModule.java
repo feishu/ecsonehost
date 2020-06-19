@@ -50,6 +50,7 @@ import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RationaleListener;
 
 import java.io.ByteArrayOutputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -285,8 +286,8 @@ public class SmartTagModule extends WXModule
                     Map m = new HashMap();
                     m.put("message", s);
                     m.put("code", i);
-                    m.put("exception", e.getMessage());
-                    moduleAdapterCallBack.success(m);
+                    m.put("exception", e!=null?e.getMessage():"");
+                    moduleAdapterCallBack.error(m);
                 }
             });
         }
@@ -402,7 +403,11 @@ public class SmartTagModule extends WXModule
                 @Override
                 public void onFailure(String s, int i, Exception e) {
                     total = 0;
-                    mAdaptercb.error(s);
+                    Map m = new HashMap();
+                    m.put("message", s);
+                    m.put("code", i);
+                    m.put("exception", e!=null?e.getMessage():"");
+                    mAdaptercb.error(m);
                     //上传失败
                 }
             });
@@ -607,7 +612,8 @@ public class SmartTagModule extends WXModule
             return updateDevice(device,null);
         }
         private ArrayList<JSONObject> updateDevice(SmartDevice device,String smartDeviceSN){
-            if(smartDeviceSN!=null && !device.getSerialNumber().equals(smartDeviceSN))
+            String _smartDeviceSN  = lpad(smartDeviceSN.length(),device.getSerialNumber());
+            if(smartDeviceSN!=null && !_smartDeviceSN.equals(smartDeviceSN))
             {
                 return new ArrayList<JSONObject>();
             }else{
@@ -622,6 +628,10 @@ public class SmartTagModule extends WXModule
             }
             return _devices;
         }
+        private String lpad(int length, String number) {
+            return String.format("%"+length+"s", number).replace(' ', '0');
+        }
+
         private JSONObject getJSONDeviceBySN(String smartDeviceSN){
             if(smartDeviceSN.isEmpty() || _devices.size() < _deviceSN.getInteger(smartDeviceSN)) {
                 return null;

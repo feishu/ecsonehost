@@ -17,11 +17,12 @@ class App : Application() {
         WeexBoxEngine.setup(this, null)
 
         // 开启调试
-        WeexBoxEngine.isDebug = true
+        WeexBoxEngine.isDebug = false
         SDKInsigma.init(this,true)
         Global.init(this)
         WXSDKEngine.registerModule("SmartTag", SmartTagModule::class.java)
         WXSDKEngine.registerModule("event", EventModule::class.java)
+        Global.init(this)
     }
 
 }
