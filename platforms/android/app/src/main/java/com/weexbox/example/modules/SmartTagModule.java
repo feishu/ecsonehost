@@ -3,15 +3,11 @@ package com.weexbox.example.modules;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.content.pm.PackageManager;
 import android.text.TextUtils;
-import android.widget.Toast;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.bugfender.sdk.MyBugfender;
 import com.lelibrary.androidlelibrary.ble.BluetoothLeDeviceStore;
 import com.lelibrary.androidlelibrary.ble.BluetoothLeScanner;
 import com.lelibrary.androidlelibrary.ble.ScannerCallback;
@@ -29,76 +25,63 @@ import com.lelibrary.androidlelibrary.sdk.callback.WSDeviceCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSRemoveAssociationCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSStringCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSStringProgressCallback;
-import com.lelibrary.androidlelibrary.sdk.callback.WSUploadCallback;
 import com.lelibrary.androidlelibrary.sdk.model.AssociationModel;
 import com.lelibrary.androidlelibrary.sdk.model.CoolerModel;
 import com.lelibrary.androidlelibrary.sdk.model.DeviceModel;
 import com.lelibrary.androidlelibrary.sdk.model.RemoveAssociationModel;
-import com.lelibrary.androidlelibrary.sdk.model.UploadStatusModel;
-import com.lelibrary.androidlelibrary.sdk.utils.ValidationUtils;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
-import com.taobao.weex.utils.WXLogUtils;
 import com.weex.weexextra.ModuleAdapterCallBack;
-import com.weexbox.core.util.ToastUtil;
-import com.weexbox.example.LaunchActivity;
-import com.weexbox.example.R;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.PermissionListener;
-import com.yanzhenjie.permission.Rationale;
-import com.yanzhenjie.permission.RationaleListener;
+import com.weexbox.permissionutil.CPCallback;
+import com.weexbox.permissionutil.CheckPermission;
+import com.weexbox.permissionutil.Permission;
+import com.weexbox.permissionutil.model.PermissionModel;
 
 import java.io.ByteArrayOutputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.CAMERA;
-import static android.Manifest.permission.READ_PHONE_STATE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import static com.litesuits.common.utils.HandlerUtil.runOnUiThread;
 
-public class SmartTagModule extends WXModule
+public class SmartTagModule extends WXModule implements CPCallback
 {
     private SmartTagFactory smartTagFactory = null;
+    private CheckPermission checkPermission=null;
     private ModuleAdapterCallBack downloadAdapterCallBack = null;
-    public void isGranted(Context context, LELModule.doSomething dd){
-        AndPermission.with(context).requestCode(111).permission(CAMERA,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION).rationale(new RationaleListener() {
-            @Override
-            public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
-                AndPermission.rationaleDialog(context,rationale).show();
-            }
-        }).callback(new PermissionListener() {
-            @Override
-            public void onSucceed(int requestCode, @NonNull List<String> grantPermissions) {
-                if(dd!=null)dd.doST();
-            }
-
-            @Override
-            public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
-                WXLogUtils.w("AndPermission,onFailed");
-                ToastUtil.showLongToast(context, "Permission request Failed");
-            }
-        }).start();
-    }
-
-    interface doSomething{
-        void doST();
-    }
+//    public void isGranted(Context context, LELModule.doSomething dd){
+//        AndPermission.with(context).requestCode(111).permission(CAMERA,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION).rationale(new RationaleListener() {
+//            @Override
+//            public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
+//                AndPermission.rationaleDialog(context,rationale).show();
+//            }
+//        }).callback(new PermissionListener() {
+//            @Override
+//            public void onSucceed(int requestCode, @NonNull List<String> grantPermissions) {
+//                if(dd!=null)dd.doST();
+//            }
+//
+//            @Override
+//            public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+//                WXLogUtils.w("AndPermission,onFailed");
+//                ToastUtil.showLongToast(context, "Permission request Failed");
+//            }
+//        }).start();
+//    }
+//
+//    interface doSomething{
+//        void doST();
+//    }
 
     @JSMethod(uiThread = false)
     public void init(JSONObject optionObj,JSCallback successCallBack, JSCallback errorCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack,errorCallBack);
         if(optionObj==null) moduleAdapterCallBack.error("初始化参数不能为空");
         else {
+            checkPermission = new CheckPermission((Activity)mWXSDKInstance.getContext(),null,this);
+            checkPermission.IsPermissionsGranted();
             String _apIkey = optionObj.getString("APIkey");
             String _userName = optionObj.getString("UserName");
             Integer _server_Index = optionObj.getInteger("Server_Index");
@@ -275,7 +258,8 @@ public class SmartTagModule extends WXModule
                     coolerdata.put("EquipmentNumber",coolerModel.getEquipmentNumber());
                     coolerdata.put("OutletCode",coolerModel.getOutletCode());
                     coolerdata.put("OutletName",coolerModel.getOutletName());
-                    coolerdata.put("SmartDeviceSerial",coolerModel.getSmartDeviceSerial());
+                    coolerdata.put("SN",coolerModel.getSmartDeviceSerial());
+                    coolerdata.put("macAddress", smartTagFactory.getBluetoothManager().getDeviceSerialToMACAddress(coolerModel.getSmartDeviceSerial()));
                     coolerdata.put("isAssociated",coolerModel.isAssociated());
                     map.put("coolerData",coolerdata);
                     moduleAdapterCallBack.success(map);
@@ -414,7 +398,39 @@ public class SmartTagModule extends WXModule
         }
     }
 
- /*#################################################################################################*/
+
+    @Override
+    public boolean onActivityBack() {
+        return super.onActivityBack();
+    }
+
+    @Override
+    public void onActivityDestroy() {
+        smartTagFactory.destroy();
+        super.onActivityDestroy();
+    }
+
+    @Override
+    public Map<String, PermissionModel> getPermissionModelList() {
+        Map<String, PermissionModel> permissionModelList = new HashMap<>();
+        permissionModelList.put(Permission.CAMERA, new PermissionModel("Camera", PackageManager.PERMISSION_GRANTED));
+        permissionModelList.put(Permission.WRITE_EXTERNAL_STORAGE, new PermissionModel("Storage", PackageManager.PERMISSION_GRANTED));
+        permissionModelList.put(Permission.READ_EXTERNAL_STORAGE, new PermissionModel("", PackageManager.PERMISSION_GRANTED));
+        permissionModelList.put(Permission.ACCESS_FINE_LOCATION, new PermissionModel("Location", PackageManager.PERMISSION_GRANTED));
+        permissionModelList.put(Permission.ACCESS_COARSE_LOCATION, new PermissionModel("", PackageManager.PERMISSION_GRANTED));
+        return permissionModelList;
+    }
+
+    @Override
+    public void isGranted() {
+
+    }
+
+    @Override
+    public void onStopApp() {
+    }
+
+    /*#################################################################################################*/
     static class SmartTagFactory implements ScannerCallback
     {
         private static String _userName = null;
@@ -426,28 +442,25 @@ public class SmartTagModule extends WXModule
         SmartTagFactory(String userName,String apiKey,Integer server_Index,Context _context){
             context = _context;
             mSmartInterface = null;
-            smartServerAPI = getInstanceSmartAPI(context);
+            smartServerAPI = new SmartServerAPI(context.getApplicationContext());
             smartServerAPI.setAPIKey(apiKey);
             smartServerAPI.setAccessURL(server_Index);
             smartServerAPI.setServerTimeoutInterval(180);
             _userName = userName;
 
-            insigmaBluetoothManager = getBluetoothManager(context);
+            insigmaBluetoothManager = new InsigmaBluetoothManager(context,this);
             insigmaBluetoothManager.setTimeoutInterval(30);
             insigmaBluetoothManager.setCalibratedTXPower(-59);
         }
 
-        private SmartServerAPI getInstanceSmartAPI(Context context){
-            if(smartServerAPI == null){
-                smartServerAPI = new SmartServerAPI(context.getApplicationContext());
-            }
-            return smartServerAPI;
-        }
+//        private SmartServerAPI getInstanceSmartAPI(Context context){
+//            if(smartServerAPI == null){
+//                smartServerAPI = new SmartServerAPI(context.getApplicationContext());
+//            }
+//            return smartServerAPI;
+//        }
 
-        private InsigmaBluetoothManager getBluetoothManager(Context context){
-            if(insigmaBluetoothManager == null){
-                insigmaBluetoothManager = new InsigmaBluetoothManager(context,this);
-            }
+        private InsigmaBluetoothManager getBluetoothManager(){
             return insigmaBluetoothManager;
         }
 
@@ -477,7 +490,6 @@ public class SmartTagModule extends WXModule
         }
 
         private InsigmaSmartDevice insigmaSmartDevice = null;
-
         private void connect(SmartDevice smartDevice, SmartConnectCallback sccallback) {
             if(insigmaSmartDevice==null || !insigmaSmartDevice.getSmartDevice().getSerialNumber().equals(smartDevice.getSerialNumber())) {
                 insigmaSmartDevice = new InsigmaSmartDevice(context, smartDevice, new SmartCallback() {
@@ -510,7 +522,8 @@ public class SmartTagModule extends WXModule
                     @Override
                     public void onDataDownloaded(SmartDevice smartDevice, boolean b, ArrayList<BLETagModel> arrayList) {
                         if(sccallback!=null){sccallback.onDataDownloaded(b,arrayList);}
-                        //下载下来的数据
+                        deviceDisconnect();
+                        //下载结束关掉连接的数据
                     }
 
                     @Override
@@ -576,12 +589,10 @@ public class SmartTagModule extends WXModule
                     });
                 }
                 else{
-                    insigmaSmartDevice.connectDevice();
+                    if(sccallback!=null){sccallback.onDeviceConnected();}
                 }
             } else {
-                //连接之前先关闭
                 deviceDisconnect();
-                //CommonUtils.showAlertDialog(this, "Device Already Connected", null, false);
             }
         }
 
@@ -683,18 +694,28 @@ public class SmartTagModule extends WXModule
         }
 
         @Override
-        public void onDeviceFound(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, SmartDevice smartDevice, Context context, boolean b, SmartDeviceModel smartDeviceModel) {
+        public synchronized void onDeviceFound(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, SmartDevice smartDevice, Context context, boolean b, SmartDeviceModel smartDeviceModel) {
             if(mSmartInterface!=null)mSmartInterface.onDeviceFound(smartDevice,smartDeviceModel);
         }
 
         @Override
-        public void onScanFinished(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, Context context, boolean b) {
+        public synchronized void onScanFinished(BluetoothLeScanner bluetoothLeScanner, BluetoothLeDeviceStore bluetoothLeDeviceStore, Context context, boolean b) {
             if(mSmartInterface!=null)mSmartInterface.onScanFinished(bluetoothLeDeviceStore);
         }
 
         @Override
         public void onScanFailed(int i) {
             if(mSmartInterface!=null)mSmartInterface.onScanFailed(i);
+        }
+
+        private void destroy(){
+            if(insigmaBluetoothManager!=null){
+                insigmaBluetoothManager.stopScan();
+                insigmaBluetoothManager.onDestroy();
+            }
+            if(smartServerAPI!=null){
+                smartServerAPI.onDestroy();
+            }
         }
 
         private ProgressDialog progressDialog;
