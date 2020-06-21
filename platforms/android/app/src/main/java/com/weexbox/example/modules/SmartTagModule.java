@@ -29,6 +29,7 @@ import com.lelibrary.androidlelibrary.sdk.model.AssociationModel;
 import com.lelibrary.androidlelibrary.sdk.model.CoolerModel;
 import com.lelibrary.androidlelibrary.sdk.model.DeviceModel;
 import com.lelibrary.androidlelibrary.sdk.model.RemoveAssociationModel;
+import com.lelibrary.androidlelibrary.sdk.utils.ValidationUtils;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
@@ -118,7 +119,7 @@ public class SmartTagModule extends WXModule implements CPCallback
 
                 @Override
                 public void onScanFailed(int var1) {
-                    moduleAdapterCallBack.errorKeepAlive("搜索SmartTag失败!");
+                    moduleAdapterCallBack.errorKeepAlive("搜索智能标签失败!");
                 }
                 @Override
                 public void onError(String var1) {
@@ -351,6 +352,25 @@ public class SmartTagModule extends WXModule implements CPCallback
     public void dismissProgress(){
         smartTagFactory.dismissProgress();
     }
+
+    @JSMethod(uiThread = false)
+    public void launchValidationApp(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack) {
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
+        String _uname = optionObj.getString("uname");
+        String _password = optionObj.getString("pwd");
+        String _uid = optionObj.getString("uid");
+        if((_password!=null && _password.isEmpty()) || (_uid!=null && _uid.isEmpty())){
+            moduleAdapterCallBack.error("唤起智能检查标签帐号密码错误");
+            return;
+        }
+        if(smartTagFactory!=null){
+            smartTagFactory.launchValidationApp(_uname,_password,_uid,moduleAdapterCallBack);
+        }else{
+            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
+        }
+
+    }
+
     private void uploadData(ModuleAdapterCallBack mAdaptercb){
         if(smartTagFactory.smartServerAPI.isDataAvailableForUpload()){
             smartTagFactory.smartServerAPI.uploadDataUploadDownloadLog(smartTagFactory._userName, new WSStringProgressCallback() {
@@ -592,7 +612,9 @@ public class SmartTagModule extends WXModule implements CPCallback
                     if(sccallback!=null){sccallback.onDeviceConnected();}
                 }
             } else {
-                deviceDisconnect();
+                //已连接直接返回
+                if(sccallback!=null){sccallback.onDeviceConnected();}
+                //deviceDisconnect();
             }
         }
 
@@ -604,6 +626,14 @@ public class SmartTagModule extends WXModule implements CPCallback
             smartServerAPI.checkCoolerAssociation(_userName,coolerSerial,cb);
         }
 
+        private void launchValidationApp (String userName,String password,String uid,ModuleAdapterCallBack cb){
+            boolean b = ValidationUtils.launchValidationApp(context,userName!=null?userName:_userName,password,uid);
+            if(b){
+                cb.success("");
+            }else{
+                cb.error("请先安装智能标签检查App");
+            }
+        }
         private void deviceDisconnect() {
             if (insigmaSmartDevice != null) {
                 if (!insigmaSmartDevice.isDisconnected()) {
