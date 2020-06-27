@@ -59,17 +59,21 @@ public class ModuleAdapterCallBack{
     public void errorKeepAlive(Map map) {
         invokeAndKeepAliveCallBack(map, errorCallBack, completeCallBack);
     }
-
     public void error(String errMsg) {
+        this.error(errMsg,202);
+    }
+    public void error(String errMsg,int code) {
         HashMap map = new HashMap();
-        map.put("code",202);
+        map.put("code",code);
         map.put("message", errMsg);
         invokeCallBack(map, errorCallBack, completeCallBack);
     }
-
-    public void errorKeepAlive(String errMsg) {
+    public void errorKeepAlive(String errMsg){
+        this.errorKeepAlive(errMsg,202);
+    }
+    public void errorKeepAlive(String errMsg,int code) {
         HashMap map = new HashMap();
-        map.put("code",202);
+        map.put("code",code);
         map.put("message", errMsg);
         invokeAndKeepAliveCallBack(map, errorCallBack, completeCallBack);
     }

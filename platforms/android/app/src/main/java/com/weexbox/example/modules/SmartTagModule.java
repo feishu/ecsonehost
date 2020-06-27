@@ -182,7 +182,7 @@ public class SmartTagModule extends WXModule implements CPCallback
                     Map m = new HashMap();
                     JSONObject jdata = new JSONObject();
                     m.put("status", "onDataDownloaded");
-                    jdata.put("message","Data Download Fail OR Data Not Available...");
+                    jdata.put("message","没有可以下载的数据可以直接解绑");
                     m.put("progress", jdata);
                     if(downloadAdapterCallBack!=null)downloadAdapterCallBack.successKeepAlive(m);
                 }
@@ -194,7 +194,7 @@ public class SmartTagModule extends WXModule implements CPCallback
     public void downloadUploadData(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
         if (smartTagFactory.insigmaSmartDevice != null && smartTagFactory.insigmaSmartDevice.isDisconnected()) {
-            moduleAdapterCallBack.errorKeepAlive("Device Disconnected, Please Reconnect");
+            moduleAdapterCallBack.errorKeepAlive("智能标签设备已断开, 请重新连接",10010);
             return;
         }else{
             downloadAdapterCallBack = moduleAdapterCallBack;
@@ -207,7 +207,7 @@ public class SmartTagModule extends WXModule implements CPCallback
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
         String _smartDeviceSN = optionObj.getString("smartDeviceSN");
         if((_smartDeviceSN==null || _smartDeviceSN.isEmpty())){
-            moduleAdapterCallBack.error("SmartTag SerialNumber 不能为空");
+            moduleAdapterCallBack.error("智能标签编号不能为空");
             return;
         }
         if(smartTagFactory!=null){
@@ -284,7 +284,7 @@ public class SmartTagModule extends WXModule implements CPCallback
         String _CoolerSN = optionObj.getString("CoolerSN");
         String _deviceMacAddress = optionObj.getString("deviceMacAddress");
         if((_CoolerSN!=null&&_CoolerSN.isEmpty()) || (_deviceMacAddress!=null && _deviceMacAddress.isEmpty())){
-            moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
+            moduleAdapterCallBack.error("资产编号或智能标签Mac地址不能为空,请检查后再试");
             return;
         }
         if(smartTagFactory!=null){
@@ -317,7 +317,7 @@ public class SmartTagModule extends WXModule implements CPCallback
         String _CoolerSN = optionObj.getString("CoolerSN");
         String _deviceMacAddress = optionObj.getString("deviceMacAddress");
         if((_CoolerSN!=null && _CoolerSN.isEmpty()) || (_deviceMacAddress!=null && _deviceMacAddress.isEmpty())){
-            moduleAdapterCallBack.error("资产编号或SmartTag Mac地址不能为空,请检查后再试");
+            moduleAdapterCallBack.error("资产编号或智能标签Mac地址不能为空,请检查后再试");
             return;
         }
         if(smartTagFactory!=null){
@@ -359,7 +359,7 @@ public class SmartTagModule extends WXModule implements CPCallback
         String _uname = optionObj.getString("uname");
         String _password = optionObj.getString("pwd");
         String _uid = optionObj.getString("uid");
-        if((_password!=null && _password.isEmpty()) || (_uid!=null && _uid.isEmpty())){
+        if((_password==null || _password.isEmpty()) || (_uid==null || _uid.isEmpty())){
             moduleAdapterCallBack.error("唤起智能检查标签帐号密码错误");
             return;
         }
@@ -492,7 +492,8 @@ public class SmartTagModule extends WXModule implements CPCallback
                 final boolean mIsBluetoothLePresent = insigmaBluetoothManager.isBluetoothLeSupported();
                 insigmaBluetoothManager.askUserToEnableBluetoothIfNeeded((Activity) context);
                 if (!mIsBluetoothOn || !mIsBluetoothLePresent) {
-                    if(mSmartInterface!=null)mSmartInterface.onError("IsBluetoothOn or IsBluetoothLePresent?");
+                    String msg = !mIsBluetoothOn?"请检查蓝牙是否开启":"";
+                    if(mSmartInterface!=null)mSmartInterface.onError(msg.concat(!mIsBluetoothLePresent?"请检查蓝牙是否支持":""));
                     return;
                 }
                 insigmaBluetoothManager.startScan();
