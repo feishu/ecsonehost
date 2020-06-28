@@ -2,7 +2,10 @@ package com.weexbox.example.modules;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
@@ -10,6 +13,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.lelibrary.androidlelibrary.ble.BluetoothLeDeviceStore;
 import com.lelibrary.androidlelibrary.ble.BluetoothLeScanner;
+import com.lelibrary.androidlelibrary.ble.BluetoothUtils;
 import com.lelibrary.androidlelibrary.ble.ScannerCallback;
 import com.lelibrary.androidlelibrary.ble.SmartDevice;
 import com.lelibrary.androidlelibrary.ble.SmartDeviceModel;
@@ -52,6 +56,8 @@ public class SmartTagModule extends WXModule implements CPCallback
     private SmartTagFactory smartTagFactory = null;
     private CheckPermission checkPermission=null;
     private ModuleAdapterCallBack downloadAdapterCallBack = null;
+    private boolean isReceiverRegister;
+    private BroadcastReceiver bleStateBroadCastReceiver;
 //    public void isGranted(Context context, LELModule.doSomething dd){
 //        AndPermission.with(context).requestCode(111).permission(CAMERA,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION).rationale(new RationaleListener() {
 //            @Override
@@ -76,11 +82,35 @@ public class SmartTagModule extends WXModule implements CPCallback
 //        void doST();
 //    }
 
+    public SmartTagModule(){
+        this.bleStateBroadCastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+                if (intent != null && "android.bluetooth.adapter.action.STATE_CHANGED".equals(intent.getAction())) {
+                    int state = intent.getIntExtra("android.bluetooth.adapter.extra.STATE", -2147483648);
+                    switch(state) {
+                        case 10:
+                            break;
+                        case 11:
+                            break;
+                        case 12:
+                            break;
+                        case 13:
+                            //"bleStateBroadCastReceiver onReceive : Turning Bluetooth off..."
+                            break;
+                        default:
+                            //
+                    }
+                }
+            }
+        };
+    }
     @JSMethod(uiThread = false)
     public void init(JSONObject optionObj,JSCallback successCallBack, JSCallback errorCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack,errorCallBack);
         if(optionObj==null) moduleAdapterCallBack.error("初始化参数不能为空");
         else {
+            RegisterBoradCastReceiver();
             checkPermission = new CheckPermission((Activity)mWXSDKInstance.getContext(),null,this);
             checkPermission.IsPermissionsGranted();
             String _apIkey = optionObj.getString("APIkey");
@@ -428,6 +458,7 @@ public class SmartTagModule extends WXModule implements CPCallback
     public void onActivityDestroy() {
         smartTagFactory.destroy();
         super.onActivityDestroy();
+        UnRegisterBoradCastReceiver();
     }
 
     @Override
@@ -449,6 +480,32 @@ public class SmartTagModule extends WXModule implements CPCallback
     @Override
     public void onStopApp() {
     }
+
+    private void RegisterBoradCastReceiver() {
+//        if (mWXSDKInstance.getContext() != null && !this.isReceiverRegister) {
+//            try {
+//                this.isReceiverRegister = true;
+//                mWXSDKInstance.getContext().registerReceiver(this.bleStateBroadCastReceiver, new IntentFilter("android.bluetooth.adapter.action.STATE_CHANGED"));
+//            } catch (Exception var2) {
+//
+//            }
+//        }
+
+    }
+
+    private void UnRegisterBoradCastReceiver() {
+        if (mWXSDKInstance.getContext() != null && this.isReceiverRegister) {
+            try {
+                this.isReceiverRegister = false;
+                mWXSDKInstance.getContext().unregisterReceiver(this.bleStateBroadCastReceiver);
+            } catch (Exception var2) {
+
+            }
+        }
+
+    }
+
+
 
     /*#################################################################################################*/
     static class SmartTagFactory implements ScannerCallback
@@ -609,8 +666,8 @@ public class SmartTagModule extends WXModule implements CPCallback
                         }
                     });
                 }
-                else{
-                    if(sccallback!=null){sccallback.onDeviceConnected();}
+                else{ /*与设备已经断开重新连接*/
+                    insigmaSmartDevice.connectDevice();
                 }
             } else {
                 //已连接直接返回
@@ -654,7 +711,7 @@ public class SmartTagModule extends WXModule implements CPCallback
             return updateDevice(device,null);
         }
         private ArrayList<JSONObject> updateDevice(SmartDevice device,String smartDeviceSN){
-            String _smartDeviceSN  = lpad(smartDeviceSN.length(),device.getSerialNumber());
+            String _smartDeviceSN  = smartDeviceSN!=null?lpad(smartDeviceSN.length(),device.getSerialNumber()):"";
             if(smartDeviceSN!=null && !_smartDeviceSN.equals(smartDeviceSN))
             {
                 return new ArrayList<JSONObject>();
@@ -707,6 +764,7 @@ public class SmartTagModule extends WXModule implements CPCallback
             map.put("isMultiDoorEnable",smartDevice.isMultiDoorEnable());
             map.put("isDoorTimeout",smartDevice.isDoorTimeout());
             map.put("SmartDoorCount",smartDevice.getSmartDoorCount());
+            map.put("isIBeacon", smartDevice.isIBeacon());
             return map;
         }
 
@@ -745,6 +803,7 @@ public class SmartTagModule extends WXModule implements CPCallback
                 insigmaBluetoothManager.onDestroy();
             }
             if(smartServerAPI!=null){
+                smartServerAPI.onDestroy();
                 smartServerAPI.onDestroy();
             }
         }
