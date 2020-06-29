@@ -191,7 +191,7 @@ public class SmartTagModule extends WXModule implements CPCallback
                 // 下载进度条
                 Map m = new HashMap();
                 JSONObject jdata = new JSONObject();
-                m.put("status", "onProgress");
+                m.put("status", "onDownProgress");
                 try {
                     jdata.put("total",totalCount);
                     jdata.put("current",currentIndex);
@@ -205,6 +205,8 @@ public class SmartTagModule extends WXModule implements CPCallback
 
             @Override
             public void onDataDownloaded(boolean isSuccess, ArrayList<BLETagModel> dataList) {
+                //下载完成关闭蓝牙
+                deviceDisconnect();
                 if(isSuccess && dataList != null){
                     //上传数据
                     uploadData(downloadAdapterCallBack);
@@ -218,6 +220,13 @@ public class SmartTagModule extends WXModule implements CPCallback
                 }
             }
         });
+    }
+
+    @JSMethod(uiThread = false)
+    public void deviceDisconnect() {
+        if(smartTagFactory!=null) {
+            smartTagFactory.deviceDisconnect();
+        }
     }
 
     @JSMethod(uiThread = false)
@@ -411,7 +420,7 @@ public class SmartTagModule extends WXModule implements CPCallback
                     Map m = new HashMap();
                     JSONObject jdata = new JSONObject();
                     if(total==0) total = l;
-                    m.put("status", "onProgress");
+                    m.put("status", "onUpProgress");
                     try {
                         jdata.put("total",total);
                         jdata.put("current",total-l);
@@ -441,10 +450,12 @@ public class SmartTagModule extends WXModule implements CPCallback
                     m.put("message", s);
                     m.put("code", i);
                     m.put("exception", e!=null?e.getMessage():"");
-                    mAdaptercb.error(m);
+                    mAdaptercb.errorKeepAlive(m);
                     //上传失败
                 }
             });
+        }else{
+            mAdaptercb.successKeepAlive("无数据可以上传");
         }
     }
 
@@ -600,8 +611,6 @@ public class SmartTagModule extends WXModule implements CPCallback
                     @Override
                     public void onDataDownloaded(SmartDevice smartDevice, boolean b, ArrayList<BLETagModel> arrayList) {
                         if(sccallback!=null){sccallback.onDataDownloaded(b,arrayList);}
-                        deviceDisconnect();
-                        //下载结束关掉连接的数据
                     }
 
                     @Override
@@ -657,12 +666,17 @@ public class SmartTagModule extends WXModule implements CPCallback
                     smartServerAPI.getDeviceWhiteListData(_userName, smartDevice.getSerialNumber(), new WSStringCallback() {
                         @Override
                         public void onSuccess(HttpModel httpModel) {
-                            insigmaSmartDevice.connectDevice();
+                            if(httpModel.isSuccess()){
+                                insigmaSmartDevice.connectDevice();
+                            }else{
+                                //白名单失败
+                                //TODO
+                            }
                         }
 
                         @Override
                         public void onFailure(String s, int i, Exception e) {
-
+                            //TODO 连接失败
                         }
                     });
                 }
@@ -672,7 +686,6 @@ public class SmartTagModule extends WXModule implements CPCallback
             } else {
                 //已连接直接返回
                 if(sccallback!=null){sccallback.onDeviceConnected();}
-                //deviceDisconnect();
             }
         }
 
