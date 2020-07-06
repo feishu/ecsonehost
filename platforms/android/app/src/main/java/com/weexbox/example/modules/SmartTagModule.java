@@ -29,10 +29,12 @@ import com.lelibrary.androidlelibrary.sdk.callback.WSDeviceCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSRemoveAssociationCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSStringCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSStringProgressCallback;
+import com.lelibrary.androidlelibrary.sdk.callback.WSUploadCallback;
 import com.lelibrary.androidlelibrary.sdk.model.AssociationModel;
 import com.lelibrary.androidlelibrary.sdk.model.CoolerModel;
 import com.lelibrary.androidlelibrary.sdk.model.DeviceModel;
 import com.lelibrary.androidlelibrary.sdk.model.RemoveAssociationModel;
+import com.lelibrary.androidlelibrary.sdk.model.UploadStatusModel;
 import com.lelibrary.androidlelibrary.sdk.utils.ValidationUtils;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
@@ -56,8 +58,9 @@ public class SmartTagModule extends WXModule implements CPCallback
     private SmartTagFactory smartTagFactory = null;
     private CheckPermission checkPermission=null;
     private ModuleAdapterCallBack downloadAdapterCallBack = null;
-    private boolean isReceiverRegister;
+    private ModuleAdapterCallBack receiverAdapterCallBack = null;
     private BroadcastReceiver bleStateBroadCastReceiver;
+    private boolean dataDownloaded = false;
 //    public void isGranted(Context context, LELModule.doSomething dd){
 //        AndPermission.with(context).requestCode(111).permission(CAMERA,READ_PHONE_STATE,WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION).rationale(new RationaleListener() {
 //            @Override
@@ -81,36 +84,15 @@ public class SmartTagModule extends WXModule implements CPCallback
 //    interface doSomething{
 //        void doST();
 //    }
-
     public SmartTagModule(){
-        this.bleStateBroadCastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context c, Intent intent) {
-                if (intent != null && "android.bluetooth.adapter.action.STATE_CHANGED".equals(intent.getAction())) {
-                    int state = intent.getIntExtra("android.bluetooth.adapter.extra.STATE", -2147483648);
-                    switch(state) {
-                        case 10:
-                            break;
-                        case 11:
-                            break;
-                        case 12:
-                            break;
-                        case 13:
-                            //"bleStateBroadCastReceiver onReceive : Turning Bluetooth off..."
-                            break;
-                        default:
-                            //
-                    }
-                }
-            }
-        };
+        receiver();
     }
     @JSMethod(uiThread = false)
     public void init(JSONObject optionObj,JSCallback successCallBack, JSCallback errorCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack,errorCallBack);
         if(optionObj==null) moduleAdapterCallBack.error("初始化参数不能为空");
         else {
-            RegisterBoradCastReceiver();
+            RegisterBoradCastReceiver(moduleAdapterCallBack);
             checkPermission = new CheckPermission((Activity)mWXSDKInstance.getContext(),null,this);
             checkPermission.IsPermissionsGranted();
             String _apIkey = optionObj.getString("APIkey");
@@ -118,13 +100,29 @@ public class SmartTagModule extends WXModule implements CPCallback
             Integer _server_Index = optionObj.getInteger("Server_Index");
             if (_userName != null && _userName.length() > 0 && _apIkey != null && _apIkey.length() > 0 && _server_Index != null) {
                 smartTagFactory = new SmartTagFactory(_userName, _apIkey, _server_Index, mWXSDKInstance.getContext());
-                moduleAdapterCallBack.success("");
+                JSONObject jdata = new JSONObject();
+                jdata.put("status", "oninit");
+                jdata.put("message","初始化成功");
+                moduleAdapterCallBack.successKeepAlive("");
             } else {
                 moduleAdapterCallBack.error("初始化参数填写错误，请重新填写");
             }
         }
     }
 
+    @JSMethod(uiThread = false)
+    public void checkBluetooth(JSONObject optionObj,JSCallback successCallBack, JSCallback errorCallBack){
+        ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack,errorCallBack);
+        if(smartTagFactory!=null){
+            boolean bluetoothFlag = smartTagFactory.getBluetoothManager().isBluetoothON() && smartTagFactory.getBluetoothManager().isBluetoothLeSupported();
+            JSONObject jdata = new JSONObject();
+            jdata.put("status", bluetoothFlag);
+            moduleAdapterCallBack.success(jdata);
+        }else {
+            moduleAdapterCallBack.error("没有正确的初始化，请先初始化配置");
+        }
+
+    }
     @JSMethod(uiThread = false)
     public void startScan(JSONObject optionsObj, JSCallback successCallBack, JSCallback errorCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack,errorCallBack);
@@ -166,7 +164,7 @@ public class SmartTagModule extends WXModule implements CPCallback
         smartTagFactory.stopScan();
     }
 
-    @JSMethod(uiThread = false)
+    @JSMethod(uiThread = true)
     public void connectDevice(JSONObject optionObj, JSCallback successCallBack, JSCallback errorCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack);
         String _smartDeviceSN = optionObj.getString("smartDeviceSN");
@@ -181,6 +179,7 @@ public class SmartTagModule extends WXModule implements CPCallback
             }
             @Override
             public void onDeviceDisconnected() {
+                if(dataDownloaded)return;
                 JSONObject jdata = new JSONObject();
                 jdata.put("status", "onDisconnected");
                 jdata.put("message","连接断开");
@@ -206,6 +205,7 @@ public class SmartTagModule extends WXModule implements CPCallback
             @Override
             public void onDataDownloaded(boolean isSuccess, ArrayList<BLETagModel> dataList) {
                 //下载完成关闭蓝牙
+                dataDownloaded = true;
                 deviceDisconnect();
                 if(isSuccess && dataList != null){
                     //上传数据
@@ -410,55 +410,101 @@ public class SmartTagModule extends WXModule implements CPCallback
 
     }
 
+//            if(smartTagFactory.smartServerAPI.isDataAvailableForUpload()){
+//    smartTagFactory.smartServerAPI.uploadDataUploadDownloadLog(smartTagFactory._userName, new WSStringProgressCallback() {
+//        long total = 0;
+//        @Override
+//        public void onProgress(long l, String s) {
+//            // 上传进度条
+//            Map m = new HashMap();
+//            JSONObject jdata = new JSONObject();
+//            if(total==0) total = l;
+//            m.put("status", "onUpProgress");
+//            try {
+//                jdata.put("total",total);
+//                jdata.put("current",total-l);
+//                jdata.put("message","上传中...");
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            m.put("progress", jdata);
+//            mAdaptercb.successKeepAlive(m);
+//        }
+//
+//        @Override
+//        public void onSuccess(HttpModel httpModel) {
+//            total = 0;
+//            Map m = new HashMap();
+//            JSONObject jdata = new JSONObject();
+//            m.put("status", "onDataDownloaded");
+//            jdata.put("message","上传完成");
+//            m.put("progress", jdata);
+//            mAdaptercb.successKeepAlive(m);
+//        }
+//
+//        @Override
+//        public void onFailure(String s, int i, Exception e) {
+//            total = 0;
+//            Map m = new HashMap();
+//            m.put("message", s);
+//            m.put("code", i);
+//            m.put("exception", e!=null?e.getMessage():"");
+//            mAdaptercb.errorKeepAlive(m);
+//            //上传失败
+//        }
+//    });
+//}else{
+//    mAdaptercb.successKeepAlive("无数据可以上传");
+//}
     private void uploadData(ModuleAdapterCallBack mAdaptercb){
-        if(smartTagFactory.smartServerAPI.isDataAvailableForUpload()){
-            smartTagFactory.smartServerAPI.uploadDataUploadDownloadLog(smartTagFactory._userName, new WSStringProgressCallback() {
-                long total = 0;
-                @Override
-                public void onProgress(long l, String s) {
-                    // 上传进度条
-                    Map m = new HashMap();
-                    JSONObject jdata = new JSONObject();
-                    if(total==0) total = l;
-                    m.put("status", "onUpProgress");
-                    try {
-                        jdata.put("total",total);
-                        jdata.put("current",total-l);
-                        jdata.put("message","上传中...");
-                    } catch (JSONException e) {
+        smartTagFactory.smartServerAPI.uploadData(smartTagFactory._userName, new WSUploadCallback() {
+            long total = 0;
+            @Override
+            public void onFailure(UploadStatusModel uploadStatusModel, String s, int i, Exception e) {
+                total = 0;
+                Map m = new HashMap();
+                m.put("message", s);
+                m.put("code", i);
+                m.put("exception", e!=null?e.getMessage():"");
+                mAdaptercb.errorKeepAlive(m);
+                //上传失败
+            }
+
+            @Override
+            public void onSuccess(final UploadStatusModel uploadStatusModel, HttpModel result) {
+
+            }
+
+            @Override
+            public void onProgress(final long l,final String MACAddress,final String Message) {
+                // 上传进度条
+                Map m = new HashMap();
+                JSONObject jdata = new JSONObject();
+                if(total==0) total = l;
+                m.put("status", "onUpProgress");
+                try {
+                    jdata.put("total",total);
+                    jdata.put("current",total-l);
+                    jdata.put("message","上传中...");
+                } catch (JSONException e) {
                         e.printStackTrace();
-                    }
-                    m.put("progress", jdata);
-                    mAdaptercb.successKeepAlive(m);
                 }
+                m.put("progress", jdata);
+                mAdaptercb.successKeepAlive(m);
+            }
 
-                @Override
-                public void onSuccess(HttpModel httpModel) {
-                    total = 0;
-                    Map m = new HashMap();
-                    JSONObject jdata = new JSONObject();
-                    m.put("status", "onDataDownloaded");
-                    jdata.put("message","上传完成");
-                    m.put("progress", jdata);
-                    mAdaptercb.successKeepAlive(m);
-                }
-
-                @Override
-                public void onFailure(String s, int i, Exception e) {
-                    total = 0;
-                    Map m = new HashMap();
-                    m.put("message", s);
-                    m.put("code", i);
-                    m.put("exception", e!=null?e.getMessage():"");
-                    mAdaptercb.errorKeepAlive(m);
-                    //上传失败
-                }
-            });
-        }else{
-            mAdaptercb.successKeepAlive("无数据可以上传");
-        }
+            @Override
+            public void onAllDataUploaded() {
+                total = 0;
+                Map m = new HashMap();
+                JSONObject jdata = new JSONObject();
+                m.put("status", "onDataDownloaded");
+                jdata.put("message","上传完成");
+                m.put("progress", jdata);
+                mAdaptercb.successKeepAlive(m);
+            }
+        });
     }
-
 
     @Override
     public boolean onActivityBack() {
@@ -492,22 +538,62 @@ public class SmartTagModule extends WXModule implements CPCallback
     public void onStopApp() {
     }
 
-    private void RegisterBoradCastReceiver() {
-//        if (mWXSDKInstance.getContext() != null && !this.isReceiverRegister) {
-//            try {
-//                this.isReceiverRegister = true;
-//                mWXSDKInstance.getContext().registerReceiver(this.bleStateBroadCastReceiver, new IntentFilter("android.bluetooth.adapter.action.STATE_CHANGED"));
-//            } catch (Exception var2) {
-//
-//            }
-//        }
+    private void receiver(){
+        this.bleStateBroadCastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+                if (intent != null && "android.bluetooth.adapter.action.STATE_CHANGED".equals(intent.getAction())) {
+                    int state = intent.getIntExtra("android.bluetooth.adapter.extra.STATE", -2147483648);
+                    JSONObject jdata = new JSONObject();
+                    switch(state) {
+                        case 10:
+                            break;
+                        case 11:
+                            //Turning Bluetooth on...
+                            break;
+                        case 12://Bluetooth on...
+                        {
+                            if(receiverAdapterCallBack!=null){
+                                jdata.clear();
+                                jdata.put("status","on");
+                                jdata.put("message","蓝牙已打开,请等待");
+                                receiverAdapterCallBack.successKeepAlive(jdata);
+                            }
+                        }
+                        break;
+                        case 13: //"Turning Bluetooth off..."
+                        {
+                            if(receiverAdapterCallBack!=null){
+                                jdata.clear();
+                                jdata.put("status","off");
+                                jdata.put("message","蓝牙已关闭,请先打开蓝牙");
+                                receiverAdapterCallBack.successKeepAlive(jdata);
+                            }
+                        }
+                        break;
+                        default:
+                            //
+                    }
+                }
+            }
+        };
+    }
 
+    private void RegisterBoradCastReceiver(ModuleAdapterCallBack receiverAdapterCallBack) {
+        if (mWXSDKInstance.getContext() != null && this.receiverAdapterCallBack==null) {
+            try {
+                this.receiverAdapterCallBack = receiverAdapterCallBack;
+                mWXSDKInstance.getContext().registerReceiver(this.bleStateBroadCastReceiver, new IntentFilter("android.bluetooth.adapter.action.STATE_CHANGED"));
+            } catch (Exception var2) {
+
+            }
+        }
     }
 
     private void UnRegisterBoradCastReceiver() {
-        if (mWXSDKInstance.getContext() != null && this.isReceiverRegister) {
+        if (mWXSDKInstance.getContext() != null && this.receiverAdapterCallBack!=null) {
             try {
-                this.isReceiverRegister = false;
+                this.receiverAdapterCallBack = null;
                 mWXSDKInstance.getContext().unregisterReceiver(this.bleStateBroadCastReceiver);
             } catch (Exception var2) {
 
@@ -556,15 +642,16 @@ public class SmartTagModule extends WXModule implements CPCallback
             try {
                 _scanState = 1;
                 mSmartInterface = _mSmartInterface;
-                final boolean mIsBluetoothOn = insigmaBluetoothManager.isBluetoothON();
-                final boolean mIsBluetoothLePresent = insigmaBluetoothManager.isBluetoothLeSupported();
-                insigmaBluetoothManager.askUserToEnableBluetoothIfNeeded((Activity) context);
+                final boolean mIsBluetoothOn = getBluetoothManager().isBluetoothON();
+                final boolean mIsBluetoothLePresent = getBluetoothManager().isBluetoothLeSupported();
+                getBluetoothManager().askUserToEnableBluetoothIfNeeded((Activity) context);
                 if (!mIsBluetoothOn || !mIsBluetoothLePresent) {
                     String msg = !mIsBluetoothOn?"请检查蓝牙是否开启":"";
                     if(mSmartInterface!=null)mSmartInterface.onError(msg.concat(!mIsBluetoothLePresent?"请检查蓝牙是否支持":""));
                     return;
                 }
-                insigmaBluetoothManager.startScan();
+                getBluetoothManager().stopScan();
+                getBluetoothManager().startScan();
             }catch (Exception e){
                 stopScan();
                 mSmartInterface.onError(e.getMessage());
