@@ -2,6 +2,7 @@ package com.weexbox.example.modules;
 
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taobao.weex.annotation.JSMethod;
@@ -22,9 +23,9 @@ public class FileModule extends WXModule {
     private String TAG = "FileModule";
 
     @JSMethod(uiThread = false)
-    public void copy(JSONObject object, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack){
+    public void copy(JSONObject object, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        if(!object.containsKey("originFilePath")||!object.containsKey("targetDir")){
+        if (!object.containsKey("originFilePath") || !object.containsKey("targetDir")) {
             moduleAdapterCallBack.error("参数错误");
             return;
         }
@@ -33,12 +34,14 @@ public class FileModule extends WXModule {
             newDir = new File(Environment.getExternalStorageDirectory(), object.getString("targetDir"));
         else
             newDir = new File(mWXSDKInstance.getContext().getFilesDir(), object.getString("targetDir"));
-        String newFilePath = saveFile(new File(object.getString("originFilePath")), newDir.getAbsolutePath(),getFileNameByPath(object.getString("originFilePath")));
-        if(TextUtils.isEmpty(newFilePath)){
+
+//        String newFilePath = saveFile(new File(object.getString("originFilePath")), newDir.getAbsolutePath(), getFileNameByPath(object.getString("originFilePath")));
+        boolean b = copyFolder(object.getString("originFilePath"),newDir.getAbsolutePath());
+        if (!b) {
             moduleAdapterCallBack.error("复制失败");
-        }else{
+        } else {
             Map map = new HashMap();
-            map.put("newFilePath",newFilePath);
+            map.put("newFilePath", newDir.getAbsolutePath());
             moduleAdapterCallBack.success(map);
         }
     }
@@ -46,16 +49,75 @@ public class FileModule extends WXModule {
     @JSMethod
     public void delete(JSONObject object, JSCallback successCallBack, JSCallback errorCallBack, JSCallback completeCallBack) {
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack, errorCallBack, completeCallBack);
-        if(!object.containsKey("filePath")){
+        if (!object.containsKey("filePath")) {
             moduleAdapterCallBack.error("参数错误");
             return;
         }
-        if(!new File(object.getString("filePath")).exists()){
+        if (!new File(object.getString("filePath")).exists()) {
             moduleAdapterCallBack.error("文件不存在");
             return;
         }
         deleteFile(new File(object.getString("filePath")));
         moduleAdapterCallBack.success("删除完成");
+    }
+
+
+    /**
+     * 复制文件夹及其中的文件
+     *
+     * @param oldPath String 原文件夹路径 如：data/user/0/com.test/files
+     * @param newPath String 复制后的路径 如：data/user/0/com.test/cache
+     * @return <code>true</code> if and only if the directory and files were copied;
+     * <code>false</code> otherwise
+     */
+    public boolean copyFolder(String oldPath, String newPath) {
+        try {
+            File newFile = new File(newPath);
+            if (!newFile.exists()) {
+                if (!newFile.mkdirs()) {
+                    Log.e("--Method--", "copyFolder: cannot create directory.");
+                    return false;
+                }
+            }
+            File oldFile = new File(oldPath);
+            String[] files = oldFile.list();
+            File temp;
+            for (String file : files) {
+                if (oldPath.endsWith(File.separator)) {
+                    temp = new File(oldPath + file);
+                } else {
+                    temp = new File(oldPath + File.separator + file);
+                }
+
+                if (temp.isDirectory()) {   //如果是子文件夹
+                    copyFolder(oldPath + "/" + file, newPath + "/" + file);
+                } else if (!temp.exists()) {
+                    Log.e("--Method--", "copyFolder:  oldFile not exist.");
+                    return false;
+                } else if (!temp.isFile()) {
+                    Log.e("--Method--", "copyFolder:  oldFile not file.");
+                    return false;
+                } else if (!temp.canRead()) {
+                    Log.e("--Method--", "copyFolder:  oldFile cannot read.");
+                    return false;
+                } else {
+                    FileInputStream fileInputStream = new FileInputStream(temp);
+                    FileOutputStream fileOutputStream = new FileOutputStream(newPath + "/" + temp.getName());
+                    byte[] buffer = new byte[1024];
+                    int byteRead;
+                    while ((byteRead = fileInputStream.read(buffer)) != -1) {
+                        fileOutputStream.write(buffer, 0, byteRead);
+                    }
+                    fileInputStream.close();
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public String saveFile(File file, String savedPath, String fileName) {
@@ -78,7 +140,7 @@ public class FileModule extends WXModule {
             boolean var8 = false;
 
             int len;
-            while((len = is.read(temp)) > 0) {
+            while ((len = is.read(temp)) > 0) {
                 os.write(temp, 0, len);
             }
 
@@ -117,7 +179,7 @@ public class FileModule extends WXModule {
     }
 
     public void deleteAllFile(File[] fileList) {
-        for(int i = 0; i < fileList.length; ++i) {
+        for (int i = 0; i < fileList.length; ++i) {
             File file = fileList[i];
             if (file.isDirectory()) {
                 deleteAllFile(file.listFiles());
