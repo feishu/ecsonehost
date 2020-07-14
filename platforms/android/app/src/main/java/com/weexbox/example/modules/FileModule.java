@@ -1,7 +1,6 @@
 package com.weexbox.example.modules;
 
 import android.os.Environment;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSONObject;
@@ -36,12 +35,12 @@ public class FileModule extends WXModule {
             newDir = new File(mWXSDKInstance.getContext().getFilesDir(), object.getString("targetDir"));
 
 //        String newFilePath = saveFile(new File(object.getString("originFilePath")), newDir.getAbsolutePath(), getFileNameByPath(object.getString("originFilePath")));
-        boolean b = copyFolder(object.getString("originFilePath"),newDir.getAbsolutePath());
+        boolean b = copyFolder(object.getString("originFilePath"), newDir.getAbsolutePath());
         if (!b) {
             moduleAdapterCallBack.error("复制失败");
         } else {
             Map map = new HashMap();
-            map.put("newFilePath", newDir.getAbsolutePath());
+            map.put("newFilePath", new File(object.getString("originFilePath")).isDirectory() ? (newDir.getAbsolutePath()+ File.separator) : (newDir.getAbsolutePath() + File.separator + getFileNameByPath(object.getString("originFilePath"))));
             moduleAdapterCallBack.success(map);
         }
     }
