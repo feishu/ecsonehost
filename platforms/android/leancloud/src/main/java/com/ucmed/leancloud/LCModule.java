@@ -36,47 +36,62 @@ public class LCModule extends WXModule {
         File file = new File(filestr);
         byte[] data = DemoUtils.readFile(file);
         AVFile avFile = new AVFile(file.getName(), data);
-        avFile.saveInBackground(new ProgressCallback() {
-            @Override
-            public void done(Integer percentDone) {
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("progress", percentDone);
-                progress.invokeAndKeepAlive(jsonObject1);
-            }
-        });
-
-        avFile.saveInBackground().subscribe(new Observer<AVFile>() {
-//            public void onSubscribe(Disposable disposable) {
+//        avFile.saveInBackground(new ProgressCallback() {
+//            @Override
+//            public void done(Integer percentDone) {
 //                JSONObject jsonObject1 = new JSONObject();
-//                jsonObject1.put("status", "onSubscribe");
+//                jsonObject1.put("progress", percentDone);
+//                progress.invokeAndKeepAlive(jsonObject1);
+//            }
+//        });
+//
+//        avFile.saveInBackground().subscribe(new Observer<AVFile>() {
+////            public void onSubscribe(Disposable disposable) {
+////                JSONObject jsonObject1 = new JSONObject();
+////                jsonObject1.put("status", "onSubscribe");
+////                done.invoke(jsonObject1);
+////            }
+//            public void onSubscribe(Disposable disposable) {
+//            }
+//
+//            public void onNext(AVFile file) {
+//                System.out.println("文件保存完成。objectId：" + file.getObjectId());
+//                JSONObject jsonObject1 = new JSONObject();
+//                jsonObject1.put("url", file.getUrl());
+//                jsonObject1.put("ObjectId", file.getObjectId());
+//                jsonObject1.put("status", "onNext");
 //                done.invoke(jsonObject1);
 //            }
-            public void onSubscribe(Disposable disposable) {
+//
+//            public void onError(Throwable throwable) {
+//                // 保存失败，可能是文件无法被读取，或者上传过程中出现问题
+//                JSONObject jsonObject1 = new JSONObject();
+//                jsonObject1.put("err", throwable.getMessage());
+//                jsonObject1.put("status", "onError");
+//                done.invoke(jsonObject1);
+//            }
+//
+//            public void onComplete() {
+//                JSONObject jsonObject1 = new JSONObject();
+//                jsonObject1.put("status", "onComplete");
+//                done.invoke(jsonObject1);
+//            }
+//        });
+        new upLoadC(mWXSDKInstance.getContext(), avFile, new upLoadC.Callback() {
+            @Override
+            public void onprogress(JSONObject object) {
+                progress.invokeAndKeepAlive(object);
             }
 
-            public void onNext(AVFile file) {
-                System.out.println("文件保存完成。objectId：" + file.getObjectId());
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("url", file.getUrl());
-                jsonObject1.put("ObjectId", file.getObjectId());
-                jsonObject1.put("status", "onNext");
-                done.invoke(jsonObject1);
+            @Override
+            public void onFinished(JSONObject object) {
+                done.invoke(object);
             }
 
-            public void onError(Throwable throwable) {
-                // 保存失败，可能是文件无法被读取，或者上传过程中出现问题
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("err", throwable.getMessage());
-                jsonObject1.put("status", "onError");
-                done.invoke(jsonObject1);
-            }
-
-            public void onComplete() {
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("status", "onComplete");
-                done.invoke(jsonObject1);
+            @Override
+            public void onError(JSONObject object) {
+                done.invoke(object);
             }
         });
-
     }
 }
