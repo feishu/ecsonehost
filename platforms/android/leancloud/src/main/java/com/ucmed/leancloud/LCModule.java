@@ -28,7 +28,8 @@ public class LCModule extends WXModule {
     public void upload(JSONObject jsonObject, final JSCallback progress, final JSCallback done) {
         if(!jsonObject.containsKey("file")){
             JSONObject jsonObject1 = new JSONObject();
-            jsonObject1.put("err", "no file path");
+            jsonObject1.put("status", "onError");
+            jsonObject1.put("error", "file 参数有错误");
             done.invoke(jsonObject1);
             return;
         }
@@ -45,36 +46,35 @@ public class LCModule extends WXModule {
             }
         });
 
-        avFile.saveInBackground().subscribe(new Observer<AVFile>() {
-//            public void onSubscribe(Disposable disposable) {
-//                JSONObject jsonObject1 = new JSONObject();
-//                jsonObject1.put("status", "onSubscribe");
-//                done.invoke(jsonObject1);
-//            }
-            public void onSubscribe(Disposable disposable) {
-            }
 
+        avFile.saveInBackground().subscribe(new Observer<AVFile>() {
+            JSONObject successData = new JSONObject();
+            public void onSubscribe(Disposable disposable) {}
             public void onNext(AVFile file) {
-                System.out.println("文件保存完成。objectId：" + file.getObjectId());
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("url", file.getUrl());
-                jsonObject1.put("ObjectId", file.getObjectId());
-                jsonObject1.put("status", "onNext");
-                done.invoke(jsonObject1);
+                successData.clear();
+                successData.put("url", file.getUrl());
+                successData.put("ObjectId", file.getObjectId());
+                successData.put("size",file.getSize());
+                successData.put("status", "onSuccess");
+                successData.put("message", "文件上传成功");
+               // done.invoke(successData);
             }
 
             public void onError(Throwable throwable) {
                 // 保存失败，可能是文件无法被读取，或者上传过程中出现问题
                 JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("err", throwable.getMessage());
                 jsonObject1.put("status", "onError");
+                jsonObject1.put("error",throwable.getMessage());
                 done.invoke(jsonObject1);
             }
 
             public void onComplete() {
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("status", "onComplete");
-                done.invoke(jsonObject1);
+                successData.remove("status");
+                successData.put("status", "onComplete");
+
+                successData.remove("message");
+                successData.put("message","完成");
+                done.invoke(successData);
             }
         });
 
