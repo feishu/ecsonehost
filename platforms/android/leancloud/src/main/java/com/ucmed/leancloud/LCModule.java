@@ -77,6 +77,5 @@ public class LCModule extends WXModule {
                 done.invoke(successData);
             }
         });
-
     }
 }

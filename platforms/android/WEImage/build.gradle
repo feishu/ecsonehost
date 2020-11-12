@@ -40,5 +40,5 @@ dependencies {
     compileOnly "com.alibaba:fastjson:${project.fastjsonLibVersion}"
     compileOnly 'com.yanzhenjie:permission:1.1.2'
     implementation 'com.github.chrisbanes.photoview:library:1.2.4'
-    compileOnly 'com.github.bumptech.glide:glide:4.8.0'
+    compileOnly 'com.github.bumptech.glide:glide:3.7.0'
 }

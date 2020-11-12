@@ -7,6 +7,7 @@ import com.lelibrary.androidlelibrary.init.SDKInsigma
 import com.taobao.weex.WXSDKEngine
 import com.weex.weexextra.Global
 import com.weexbox.core.WeexBoxEngine
+import com.weexbox.example.modules.FileModule
 import com.weexbox.example.modules.SmartTagModule
 
 class App : Application() {
@@ -23,6 +24,7 @@ class App : Application() {
         Global.init(this)
         WXSDKEngine.registerModule("SmartTag", SmartTagModule::class.java)
         WXSDKEngine.registerModule("event", EventModule::class.java)
+        WXSDKEngine.registerModule("FileUtil", FileModule::class.java)
         Global.init(this)
     }
 
