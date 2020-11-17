@@ -11,8 +11,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
@@ -133,9 +133,10 @@ public class QRAdapterIml {
 
     public void decScan(final Context context, String image, final ModuleAdapterCallBack callbackInterface) {
         if (image.startsWith("http") || image.startsWith("https")) {
-            Glide.with(context).asBitmap().load(image).into(new SimpleTarget<Bitmap>() {
+
+            Glide.with(context).load(image).asBitmap().into(new SimpleTarget<Bitmap>() {
                 @Override
-                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                     QRDecode.decodeQR(resource, new OnScannerCompletionListener() {
                         @Override
                         public void onScannerCompletion(Result rawResult, ParsedResult parsedResult, Bitmap barcode) {
@@ -263,9 +264,9 @@ public class QRAdapterIml {
             bitmap.setPixels(pixels, 0, QR_WIDTH, 0, 0, QR_WIDTH, QR_HEIGHT);
 
             if (!TextUtils.isEmpty(logo)) {
-                Glide.with(context).asBitmap().load(logo).into(new SimpleTarget<Bitmap>() {
+                Glide.with(context).load(logo).asBitmap().into(new SimpleTarget<Bitmap>() {
                     @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                         Bitmap final_bitmap = addLogo(bitmap, resource);
                         File savef = saveImgFile(context, final_bitmap);
                         if (savef.exists()) {
