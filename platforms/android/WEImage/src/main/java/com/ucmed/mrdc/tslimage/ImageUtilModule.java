@@ -52,6 +52,8 @@ public class ImageUtilModule extends WXModule {
         List<String> sourceType = new ArrayList<>();
         if (object.containsKey("sourceType"))
             sourceType = JSON.parseArray(object.getString("sourceType"), String.class);
+        else
+            sourceType.add("camera");
         List<String> filePaths = new ArrayList<>();
         if (object.containsKey("filePaths"))
             filePaths = JSON.parseArray(object.getString("filePaths"), String.class);
