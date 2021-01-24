@@ -14,8 +14,8 @@ android {
         applicationId "com.lzx.ecsoneqnr"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 10
-        versionName "2.0.9"
+        versionCode 15
+        versionName "2.0.11"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
