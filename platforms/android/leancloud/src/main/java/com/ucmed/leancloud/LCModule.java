@@ -19,9 +19,9 @@ public class LCModule extends WXModule {
 
     @JSMethod(uiThread = true)
     public void init(JSONObject jsonObject) {
-        AVOSCloud.initialize(mWXSDKInstance.getContext(), jsonObject.getString("appId"), jsonObject.getString("appKey"));
         if (jsonObject.containsKey("serverURLs"))
             AVOSCloud.setServer(AVOSService.API, jsonObject.getString("serverURLs"));
+        AVOSCloud.initialize(mWXSDKInstance.getContext(), jsonObject.getString("appId"), jsonObject.getString("appKey"));
     }
 
     @JSMethod(uiThread = false)
