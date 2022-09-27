@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationManagerCompat;
+//import android.support.annotation.NonNull;
+//import android.support.v4.app.NotificationManagerCompat;
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationManagerCompat;
+import android.util.Log;
 import android.view.View;
 
 import com.taobao.weex.utils.WXLogUtils;
@@ -36,7 +40,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.provider.Settings.EXTRA_APP_PACKAGE;
 import static android.provider.Settings.EXTRA_CHANNEL_ID;
 
-public class LaunchActivity extends WBBaseActivity{
+public class LaunchActivity extends WBBaseActivity {
     LaunchFragment launchFragment ;
     boolean b = false;
     @Override
@@ -60,7 +64,6 @@ public class LaunchActivity extends WBBaseActivity{
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
         // areNotificationsEnabled方法的有效性官方只最低支持到API 19，低于19的仍可调用此方法不过只会返回true，即默认为用户已经开启了通知。
         boolean isOpened = manager.areNotificationsEnabled();
-
         if (isOpened) {
 //            mBinding.tvMsg.setText("通知权限已经被打开" +
 //                    "\n手机型号:" + android.os.Build.MODEL +
@@ -106,13 +109,13 @@ public class LaunchActivity extends WBBaseActivity{
     @Override
     protected void onResume() {
         super.onResume();
+//        checkAppVersion();
         if(b){
             gotoApp();
         }else {
             b = true;
             checkNotifySetting();
         }
-
     }
 
     private void gotoApp(){
@@ -171,36 +174,4 @@ public class LaunchActivity extends WBBaseActivity{
         });
     }
 }
-
-/**
- * Author: Mario
- * Time: 2018/12/11 11:22 AM
- * Description: This is LaunchActivity
- */
-
-//class LaunchActivity : WBBaseActivity() {
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        router.navBarHidden = true
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_launch)
-//        val launchFragment = LaunchFragment()
-//        getActionbar().visibility = View.GONE
-//        hideStatusbarLayoutBackground()
-//
-//        AndPermission.with(this).requestCode(100).permission(READ_PHONE_STATE).rationale { requestCode, rationale ->
-//            AndPermission.rationaleDialog(this, rationale).show()
-//        }.callback(object : PermissionListener {
-//            override fun onSucceed(requestCode: Int, grantPermissions: List<String>) {
-//                supportFragmentManager.beginTransaction().replace(R.id.launchFragment, launchFragment).commitAllowingStateLoss()
-//            }
-//
-//            override fun onFailed(requestCode: Int, deniedPermissions: List<String>) {
-//                WXLogUtils.w("AndPermission,onFailed")
-//                ToastUtil.showLongToast(this@LaunchActivity, "Permission request Failed")
-//            }
-//        }).start()
-//
-//    }
-//}
 

@@ -3,8 +3,10 @@ package com.tesla.btmodule;
 import android.Manifest;
 import android.bluetooth.BluetoothGatt;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
+//import android.support.annotation.NonNull;
+//import android.support.annotation.RequiresApi;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSONObject;

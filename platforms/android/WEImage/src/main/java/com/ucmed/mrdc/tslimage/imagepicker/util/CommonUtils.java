@@ -1,7 +1,7 @@
 package com.ucmed.mrdc.tslimage.imagepicker.util;
 
-import android.support.annotation.Nullable;
-
+//import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 /**
  * Created by lijunguan on 2016/4/21.
  * emial: lijunguan199210@gmail.com

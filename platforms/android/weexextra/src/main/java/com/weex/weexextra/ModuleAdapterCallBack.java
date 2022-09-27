@@ -15,6 +15,7 @@ public class ModuleAdapterCallBack{
     JSCallback successCallBack;
     JSCallback errorCallBack;
     JSCallback completeCallBack;
+    JSCallback progressCallBack;
 
     public ModuleAdapterCallBack(JSCallback... callbacks) {
         if (callbacks.length == 1) {
@@ -26,6 +27,11 @@ public class ModuleAdapterCallBack{
             successCallBack = callbacks[0];
             errorCallBack = callbacks[1];
             completeCallBack = callbacks[2];
+        }else if (callbacks.length ==4){
+            successCallBack = callbacks[0];
+            errorCallBack = callbacks[1];
+            completeCallBack = callbacks[2];
+            progressCallBack = callbacks[3];
         }
 
     }
@@ -78,6 +84,12 @@ public class ModuleAdapterCallBack{
         invokeAndKeepAliveCallBack(map, errorCallBack, completeCallBack);
     }
 
+    public void progress(int progress){
+        if(progressCallBack==null) return;
+        HashMap map = new HashMap();
+        map.put("progress",progress);
+        this.invokeAndKeepAliveCallBack(map,progressCallBack);
+    }
     /**
      * @param map
      * @param callBacks

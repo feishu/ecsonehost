@@ -2,7 +2,8 @@ package com.weexbox.example;
 
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+//import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -48,16 +49,12 @@ public class LaunchFragment extends WBBaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+        //"https://ecsone.app.swirebev.com:7500/ecsoneupdate";
         // 配置热更新地址
-        String hotDeployUrl =  "http://weex.frp.apcan.cn";//"https://ecsone.app.swirebev.com:7500/ecsoneupdate";//"http://www.bbb.com";// "https://ecsoneqnr.app.swiretest.com/hotecsone"; //
+        String hotDeployUrl =  "https://ecsoneapi.app.swirecocacola.com:9001";
         UpdateManager.INSTANCE.setServerUrl(hotDeployUrl);
-//        UpdateManager.serverUrl = hotDeployUrl
-
         // 是否需要强制更新
         UpdateManager.INSTANCE.setForceUpdate(false);
-//        UpdateManager.forceUpdate = false
-
         progressTxt = (TextView) rootView.findViewById(R.id.progressTxt);
         progressView = (ProgressBar) rootView.findViewById(R.id.progressView);
 
@@ -77,6 +74,7 @@ public class LaunchFragment extends WBBaseFragment {
                     router.setUrl("page/home.js");
                     router.setCloseFrom(0);
                     router.open((LaunchActivity) getActivity());
+                    getActivity().finish();
                 }
                 return null;
             }

@@ -6,10 +6,6 @@
              tools:context=".LaunchFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment"/>
     <LinearLayout android:layout_width="wrap_content" android:layout_height="100dp"
                   android:layout_gravity="center" android:gravity="center_horizontal"
                   android:orientation="vertical"
@@ -27,6 +23,11 @@
             android:gravity="center"
             android:text="0000"
             android:textSize="18sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/hello_blank_fragment" />
     </LinearLayout>
 
 

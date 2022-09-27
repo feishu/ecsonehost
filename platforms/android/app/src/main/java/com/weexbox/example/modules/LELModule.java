@@ -2,7 +2,8 @@ package com.weexbox.example.modules;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
+//import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
@@ -541,6 +542,21 @@ public class LELModule extends WXModule {
             }
 
             @Override
+            public void onReadCalibrateGyro(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onDisableDeepSleep(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onImageCapture(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
             public void onImageSequenceTableDownloaded(SmartDevice smartDevice,  boolean isSuccess, org.json.JSONArray listData) {
                 Map map = new HashMap();
                 try {
@@ -816,7 +832,7 @@ public class LELModule extends WXModule {
             }
 
             @Override
-            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String FirmwareNumber) {
+            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s, String s1) {
                 Map map = new HashMap();
                 try {
                     map.put("IBeaconUUID",smartDevice.getIbeaconUUID());
@@ -835,9 +851,33 @@ public class LELModule extends WXModule {
                     e.printStackTrace();
                 }
                 map.put("status", "onUpdateFirmwareNumber");
-                map.put("FirmwareNumber", FirmwareNumber);
+                map.put("FirmwareNumber", s);
                 moduleAdapterCallBack.successKeepAlive(map);
             }
+
+//            @Override
+//            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String FirmwareNumber) {
+//                Map map = new HashMap();
+//                try {
+//                    map.put("IBeaconUUID",smartDevice.getIbeaconUUID());
+//                    map.put("BatteryLevel",smartDevice.getBatteryLevel());
+//                    map.put("CoolerID",smartDevice.getCoolerId());
+//                    map.put("SerialNumber",smartDevice.getSerialNumber());
+//                    map.put("Distance",smartDevice.getDistanceInMeter(mWXSDKInstance.getContext()));
+//                    map.put("DistanceInMM",smartDevice.getSmartShelfDistanceInMM());
+//                    map.put("DistanceRange",smartDevice.getRSSIRange(smartDevice.getDistanceInMeter(mWXSDKInstance.getContext())));
+//                    map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
+//                    map.put("macAddress",smartDevice.getAddress());
+//                    map.put("Rssi",smartDevice.getRssi());
+//                    map.put("Name",smartDevice.getDevice().getName());
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                map.put("status", "onUpdateFirmwareNumber");
+//                map.put("FirmwareNumber", FirmwareNumber);
+//                moduleAdapterCallBack.successKeepAlive(map);
+//            }
 
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int rssi, int status,  double distance,  String Range) {
@@ -939,6 +979,21 @@ public class LELModule extends WXModule {
                 map.put("message", message);
                 moduleAdapterCallBack.successKeepAlive(map);
             }
+
+            @Override
+            public void onSTMProgress(SmartDevice smartDevice, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onSTMSuccess(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onSTMFailed(SmartDevice smartDevice, String s) {
+
+            }
         });
         if(!insigmaSmartDevice.isDisconnected()){
             insigmaSmartDevice.connectDevice();
@@ -999,6 +1054,21 @@ public class LELModule extends WXModule {
             }
 
             @Override
+            public void onReadCalibrateGyro(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onDisableDeepSleep(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onImageCapture(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
             public void onImageSequenceTableDownloaded(SmartDevice smartDevice, boolean b, org.json.JSONArray jsonArray) {
 
             }
@@ -1054,9 +1124,14 @@ public class LELModule extends WXModule {
             }
 
             @Override
-            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
+            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s, String s1) {
 
             }
+
+//            @Override
+//            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
+//
+//            }
 
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
@@ -1075,6 +1150,21 @@ public class LELModule extends WXModule {
 
             @Override
             public void onDFUFailed(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onSTMProgress(SmartDevice smartDevice, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onSTMSuccess(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onSTMFailed(SmartDevice smartDevice, String s) {
 
             }
         });
@@ -1261,94 +1351,127 @@ public class LELModule extends WXModule {
         InsigmaSmartDevice insigmaSmartDevice = new InsigmaSmartDevice(mWXSDKInstance.getContext(), smartDevice, new SmartCallback() {
             @Override
             public void onDeviceConnected(SmartDevice smartDevice) {
-                // ToastUtil.showLongToast(mWXSDKInstance.getContext(), "0");
                 downLoadData(jsonObject,smartDevice,moduleAdapterCallBack);
             }
 
             @Override
             public void onDeviceDisconnected(SmartDevice smartDevice) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "17");
-               // moduleAdapterCallBack.error("DeviceDisconnected");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onDeviceDisconnected");
+            }
+
+            @Override
+            public void onReadCalibrateGyro(SmartDevice smartDevice, boolean b) {
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onReadCalibrateGyro");
+            }
+
+            @Override
+            public void onDisableDeepSleep(SmartDevice smartDevice, boolean b) {
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onDisableDeepSleep");
+            }
+
+            @Override
+            public void onImageCapture(SmartDevice smartDevice, boolean b) {
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onImageCapture");
             }
 
             @Override
             public void onImageSequenceTableDownloaded(SmartDevice smartDevice, boolean b, org.json.JSONArray jsonArray) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "1");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onImageSequenceTableDownloaded");
             }
 
             @Override
             public void onImageDeleted(SmartDevice smartDevice, boolean b) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "2");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onImageDeleted");
             }
 
             @Override
             public void onImageDownloadProgress(SmartDevice smartDevice, int i, int i1, int i2) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "3");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onImageDownloadProgress");
             }
 
             @Override
             public void onImageDownloadCompleted(SmartDevice smartDevice, boolean b, ByteArrayOutputStream byteArrayOutputStream) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "4");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onImageDownloadCompleted");
             }
 
             @Override
             public void onDataDownloaded(SmartDevice smartDevice, boolean b, ArrayList<BLETagModel> arrayList) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "5");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onDataDownloaded");
             }
 
             @Override
             public void onDataProgress(SmartDevice smartDevice, int i, int i1) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "6");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onDataProgress");
             }
 
             @Override
             public void onEraseAllEvents(SmartDevice smartDevice, boolean b) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "7");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onEraseAllEvents");
             }
 
             @Override
             public void onRemoteCommandsExecutionProcess(SmartDevice smartDevice, org.json.JSONObject jsonObject, int i, int i1) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "8");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onRemoteCommandsExecutionProcess");
             }
 
             @Override
             public void onRemoteCommandsExecutionFinished(SmartDevice smartDevice, int i, String s) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "9");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onRemoteCommandsExecutionFinished");
             }
 
             @Override
             public void onUpdate(SmartDevice smartDevice, String s) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "10");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onUpdate");
             }
 
             @Override
             public void onLogUpdate(SmartDevice smartDevice, String s) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "11");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onLogUpdate");
             }
 
             @Override
-            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "12");
+            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s, String s1) {
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onUpdateFirmwareNumber");
             }
+
+//            @Override
+//            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
+//                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onUpdateFirmwareNumber");
+//            }
 
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "13");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onUpdateRssi");
             }
 
             @Override
             public void onDFUProgress(SmartDevice smartDevice, int i, int i1, float v, float v1) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "14");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onDFUProgress");
             }
 
             @Override
             public void onDFUSuccess(SmartDevice smartDevice) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "15");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onDFUSuccess");
             }
 
             @Override
             public void onDFUFailed(SmartDevice smartDevice, String s) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "16");
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onDFUFailed");
+            }
+
+            @Override
+            public void onSTMProgress(SmartDevice smartDevice, int i, int i1, int i2) {
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onSTMProgress");
+            }
+
+            @Override
+            public void onSTMSuccess(SmartDevice smartDevice) {
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onSTMSuccess");
+            }
+
+            @Override
+            public void onSTMFailed(SmartDevice smartDevice, String s) {
+                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onSTMFailed");
             }
         });
         if (insigmaSmartDevice.isDisconnected()) {
@@ -1364,6 +1487,21 @@ public class LELModule extends WXModule {
 
             @Override
             public void onDeviceDisconnected(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onReadCalibrateGyro(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onDisableDeepSleep(SmartDevice smartDevice, boolean b) {
+
+            }
+
+            @Override
+            public void onImageCapture(SmartDevice smartDevice, boolean b) {
 
             }
 
@@ -1427,9 +1565,14 @@ public class LELModule extends WXModule {
             }
 
             @Override
-            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
+            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s, String s1) {
 
             }
+
+//            @Override
+//            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
+//
+//            }
 
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
@@ -1448,6 +1591,21 @@ public class LELModule extends WXModule {
 
             @Override
             public void onDFUFailed(SmartDevice smartDevice, String s) {
+
+            }
+
+            @Override
+            public void onSTMProgress(SmartDevice smartDevice, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onSTMSuccess(SmartDevice smartDevice) {
+
+            }
+
+            @Override
+            public void onSTMFailed(SmartDevice smartDevice, String s) {
 
             }
         });

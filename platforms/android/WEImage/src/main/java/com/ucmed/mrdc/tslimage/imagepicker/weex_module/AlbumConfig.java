@@ -2,8 +2,8 @@ package com.ucmed.mrdc.tslimage.imagepicker.weex_module;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ColorInt;
-
+//import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 /**
  * Created by lijunguan on 2016/4/21.
  * emial: lijunguan199210@gmail.com

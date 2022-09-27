@@ -2,8 +2,8 @@ package com.weexbox.permissionutil;
 
 import android.Manifest;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-
+//import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 //https://inthecheesefactory.com/blog/things-you-need-to-know-about-android-m-permission-developer-edition/en
 public class PermissionGroup {
 

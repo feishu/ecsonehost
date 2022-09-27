@@ -1,6 +1,7 @@
 package com.ucmed.mrdc.tslimage;
 
-import android.support.annotation.Nullable;
+//import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
