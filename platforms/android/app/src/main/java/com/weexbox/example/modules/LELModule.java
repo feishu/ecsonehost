@@ -855,30 +855,6 @@ public class LELModule extends WXModule {
                 moduleAdapterCallBack.successKeepAlive(map);
             }
 
-//            @Override
-//            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String FirmwareNumber) {
-//                Map map = new HashMap();
-//                try {
-//                    map.put("IBeaconUUID",smartDevice.getIbeaconUUID());
-//                    map.put("BatteryLevel",smartDevice.getBatteryLevel());
-//                    map.put("CoolerID",smartDevice.getCoolerId());
-//                    map.put("SerialNumber",smartDevice.getSerialNumber());
-//                    map.put("Distance",smartDevice.getDistanceInMeter(mWXSDKInstance.getContext()));
-//                    map.put("DistanceInMM",smartDevice.getSmartShelfDistanceInMM());
-//                    map.put("DistanceRange",smartDevice.getRSSIRange(smartDevice.getDistanceInMeter(mWXSDKInstance.getContext())));
-//                    map.put("RunningAverageRssiAccurate",smartDevice.getRunningAverageRssiAccurate());
-//                    map.put("macAddress",smartDevice.getAddress());
-//                    map.put("Rssi",smartDevice.getRssi());
-//                    map.put("Name",smartDevice.getDevice().getName());
-//
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//                map.put("status", "onUpdateFirmwareNumber");
-//                map.put("FirmwareNumber", FirmwareNumber);
-//                moduleAdapterCallBack.successKeepAlive(map);
-//            }
-
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int rssi, int status,  double distance,  String Range) {
                 Map map = new HashMap();
@@ -1128,11 +1104,6 @@ public class LELModule extends WXModule {
 
             }
 
-//            @Override
-//            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
-//
-//            }
-
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
 
@@ -1361,17 +1332,17 @@ public class LELModule extends WXModule {
 
             @Override
             public void onReadCalibrateGyro(SmartDevice smartDevice, boolean b) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onReadCalibrateGyro");
+
             }
 
             @Override
             public void onDisableDeepSleep(SmartDevice smartDevice, boolean b) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onDisableDeepSleep");
+
             }
 
             @Override
             public void onImageCapture(SmartDevice smartDevice, boolean b) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onImageCapture");
+
             }
 
             @Override
@@ -1434,11 +1405,6 @@ public class LELModule extends WXModule {
                 ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onUpdateFirmwareNumber");
             }
 
-//            @Override
-//            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
-//                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onUpdateFirmwareNumber");
-//            }
-
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
                 ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onUpdateRssi");
@@ -1461,17 +1427,17 @@ public class LELModule extends WXModule {
 
             @Override
             public void onSTMProgress(SmartDevice smartDevice, int i, int i1, int i2) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onSTMProgress");
+
             }
 
             @Override
             public void onSTMSuccess(SmartDevice smartDevice) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onSTMSuccess");
+
             }
 
             @Override
             public void onSTMFailed(SmartDevice smartDevice, String s) {
-                ToastUtil.showLongToast(mWXSDKInstance.getContext(), "onSTMFailed");
+
             }
         });
         if (insigmaSmartDevice.isDisconnected()) {
@@ -1568,11 +1534,6 @@ public class LELModule extends WXModule {
             public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s, String s1) {
 
             }
-
-//            @Override
-//            public void onUpdateFirmwareNumber(SmartDevice smartDevice, String s) {
-//
-//            }
 
             @Override
             public void onUpdateRssi(SmartDevice smartDevice, int i, int i1, double v, String s) {
