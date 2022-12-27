@@ -1,8 +1,17 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'net.linguica.maven-settings'
+
+repositories {
+    maven {
+        url 'https://pkgs.dev.azure.com/eBest-IOT-DEV/Product-Development/_packaging/VisionSDKAndroid/maven/v1'
+        name 'VisionSDKAndroid'
+        authentication {
+            basic(BasicAuthentication)
+        }
+    }
+}
 
 android {
     compileSdkVersion 31
@@ -61,7 +70,8 @@ dependencies {
 //        exclude group: 'com.alibaba', module: 'fastjson'
     }
 
-    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'/*,'*.aar'*/])
+    api 'com.lelibrary.androidlelibrary:visioniot:9.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

@@ -21,7 +21,6 @@ import com.lelibrary.androidlelibrary.model.HttpModel;
 import com.lelibrary.androidlelibrary.sdk.InsigmaBluetoothManager;
 import com.lelibrary.androidlelibrary.sdk.InsigmaSmartDevice;
 import com.lelibrary.androidlelibrary.sdk.SmartServerAPI;
-import com.lelibrary.androidlelibrary.sdk.callback.SmartCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSAssociationCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSCoolerCallback;
 import com.lelibrary.androidlelibrary.sdk.callback.WSDeviceCallback;
@@ -42,7 +41,7 @@ import com.weexbox.permissionutil.CPCallback;
 import com.weexbox.permissionutil.CheckPermission;
 import com.weexbox.permissionutil.Permission;
 import com.weexbox.permissionutil.model.PermissionModel;
-
+import com.weexbox.example.modules.AdapterSmartCallback;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -604,7 +603,9 @@ public class SmartTagToolsModule extends WXModule implements CPCallback
         private InsigmaSmartDevice insigmaSmartDevice = null;
         private void connect(SmartDevice smartDevice, SmartConnectCallback sccallback) {
             if(insigmaSmartDevice==null || !insigmaSmartDevice.getSmartDevice().getSerialNumber().equals(smartDevice.getSerialNumber())) {
-                insigmaSmartDevice = new InsigmaSmartDevice(context, smartDevice, new com.weexbox.example.modules.SmartTagCallback());
+                insigmaSmartDevice = new InsigmaSmartDevice(context, smartDevice,
+                        new AdapterSmartCallback(sccallback,context)
+                );
             }
             if (insigmaSmartDevice.isDisconnected()) {
                 if(!smartDevice.isDeviceInWhiteList(context)){
