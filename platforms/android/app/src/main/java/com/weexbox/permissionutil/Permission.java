@@ -16,8 +16,10 @@ public class Permission {
 
 //    public static final String WRITE_CONTACTS = Manifest.permission.WRITE_CONTACTS;
 //    public static final String GET_ACCOUNTS = Manifest.permission.GET_ACCOUNTS;
-    public static final String ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+public static final String ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     public static final String ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    public static final String BLUETOOTH_SCAN = Manifest.permission.BLUETOOTH_SCAN;
+    public static final String BLUETOOTH_CONNECT = Manifest.permission.BLUETOOTH_CONNECT;
 
 //    public static final String RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
 //    public static final String READ_PHONE_STATE = Manifest.permission.READ_PHONE_STATE;

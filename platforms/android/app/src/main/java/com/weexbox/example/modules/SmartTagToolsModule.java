@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.os.Build;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSONException;
@@ -57,6 +59,7 @@ public class SmartTagToolsModule extends WXModule implements CPCallback
     private ModuleAdapterCallBack receiverAdapterCallBack = null;
     private BroadcastReceiver bleStateBroadCastReceiver;
     private boolean dataDownloaded = false;
+    private LocationManager locationManager = null;
     public SmartTagToolsModule(){
         receiver();
     }
@@ -87,7 +90,8 @@ public class SmartTagToolsModule extends WXModule implements CPCallback
     public void checkBluetooth(JSONObject optionObj,JSCallback successCallBack, JSCallback errorCallBack){
         ModuleAdapterCallBack moduleAdapterCallBack = new ModuleAdapterCallBack(successCallBack,errorCallBack);
         if(smartTagFactory!=null){
-            boolean bluetoothFlag = smartTagFactory.getBluetoothManager().isBluetoothON() && smartTagFactory.getBluetoothManager().isBluetoothLeSupported();
+            /**是否开启蓝牙与定位*/
+            boolean bluetoothFlag = smartTagFactory.getBluetoothManager().isBluetoothON() && smartTagFactory.getBluetoothManager().isBluetoothLeSupported() && getLocationManager_Status();
             JSONObject jdata = new JSONObject();
             jdata.put("status", bluetoothFlag);
             moduleAdapterCallBack.success(jdata);
@@ -387,6 +391,22 @@ public class SmartTagToolsModule extends WXModule implements CPCallback
     public int getSyncScanState(){
         return smartTagFactory!=null ? smartTagFactory.getScanState() : 0;
     }
+
+    public boolean getLocationManager_Status() {
+        boolean status = false;
+        if (locationManager == null) {
+            locationManager = (LocationManager) mWXSDKInstance.getContext().getSystemService(Context.LOCATION_SERVICE);
+        }
+        if(locationManager !=null){
+            status = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            if (status || network) {
+                return status;
+            }
+
+        }
+        return false;
+    }
     private void uploadData(ModuleAdapterCallBack mAdaptercb){
         smartTagFactory.smartServerAPI.uploadData(smartTagFactory._userName, new WSUploadCallback() {
             long total = 0;
@@ -460,6 +480,10 @@ public class SmartTagToolsModule extends WXModule implements CPCallback
         permissionModelList.put(Permission.READ_EXTERNAL_STORAGE, new PermissionModel("", PackageManager.PERMISSION_GRANTED));
         permissionModelList.put(Permission.ACCESS_FINE_LOCATION, new PermissionModel("Location", PackageManager.PERMISSION_GRANTED));
         permissionModelList.put(Permission.ACCESS_COARSE_LOCATION, new PermissionModel("", PackageManager.PERMISSION_GRANTED));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissionModelList.put(Permission.BLUETOOTH_SCAN, new PermissionModel("Bluetooth Scan", PackageManager.PERMISSION_GRANTED));
+            permissionModelList.put(Permission.BLUETOOTH_CONNECT, new PermissionModel("Bluetooth Connect", PackageManager.PERMISSION_GRANTED));
+        }
         return permissionModelList;
     }
 
