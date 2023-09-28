@@ -20,11 +20,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.lzx.ecsone"
+        applicationId "com.lzx.ecsonedd"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 41
-        versionName "3.0.3"
+        versionCode 52
+        versionName "3.0.9"
         ndk {
             abiFilters "armeabi-v7a", "x86_64" //, "arm64-v8a"//"x86"
         }
@@ -70,7 +70,7 @@ dependencies {
 //        exclude group: 'com.alibaba', module: 'fastjson'
     }
 
-    implementation fileTree(dir: 'libs', include: ['*.jar'/*,'*.aar'*/])
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
     api 'com.lelibrary.androidlelibrary:visioniot:9.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
