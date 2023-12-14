@@ -5,13 +5,25 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 
 public class FileUtils {
+
+    public static void closeQuietly(Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
 
     /**
      * copy file
@@ -77,5 +89,20 @@ public class FileUtils {
             return copyFile.getAbsolutePath();
         }
         return null;
+    }
+
+    public static byte[] readFile(File file) {
+        RandomAccessFile rf = null;
+        byte[] data = null;
+        try {
+            rf = new RandomAccessFile(file, "r");
+            data = new byte[(int) rf.length()];
+            rf.readFully(data);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        } finally {
+            closeQuietly(rf);
+        }
+        return data;
     }
 }
