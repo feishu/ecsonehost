@@ -20,11 +20,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.lzx.ecsonedd"
+        applicationId "com.lzx.ecsone"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 52
-        versionName "3.0.9"
+        versionCode 53
+        versionName "3.0.10"
         ndk {
             abiFilters "armeabi-v7a", "x86_64" //, "arm64-v8a"//"x86"
         }
@@ -84,7 +84,8 @@ dependencies {
     implementation project(':NFCModule')
     implementation project(':WEImage')
     implementation project(':TslNet')
-    implementation project(':leancloud')
+    implementation project(':OSSModule')
+//    implementation project(':leancloud')
     implementation project(':PushCenterLib')
 }
 

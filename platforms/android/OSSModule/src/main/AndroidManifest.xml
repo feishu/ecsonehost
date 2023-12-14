@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.ucmed.aliyunoss">
+    <application>
+        <provider
+            android:name="com.ucmed.aliyunoss.OSSProvider"
+            android:authorities="${applicationId}.OSSProvider"
+            android:enabled="true"
+            android:exported="false" />
+    </application>
+</manifest>

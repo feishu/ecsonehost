@@ -5,8 +5,10 @@ include ':app',
         ':NFCModule',
         ':WEImage',
         ':TslNet',
-        ':leancloud',
-        ':weexextra', ':PushCenterLib'
+//        ':leancloud',
+        ':OSSModule',
+        ':weexextra',
+        ':PushCenterLib'
 
 //include ":LeanCloud_storage"
 //project(":LeanCloud_storage").projectDir=new File("E:\\DL\\java-unified-sdk-leancloud-sdk-5.0.18\\android-sdk\\storage-android")
