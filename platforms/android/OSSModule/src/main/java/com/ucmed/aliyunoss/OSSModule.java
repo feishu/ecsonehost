@@ -22,7 +22,7 @@ public class OSSModule extends WXModule {
     private AliyunDownloadManager mDownloadManager;
     private AliyunAuthManager mAuth;
 
-    void WXModule(){
+    public OSSModule(){
         mAuth = new AliyunAuthManager(mWXSDKInstance.getContext(), new AliyunAuthManager.AuthListener() {
             @Override
             public void onAuthFinished(OSS oss) {
@@ -87,8 +87,8 @@ public class OSSModule extends WXModule {
      * @param configuration
      */
     @JSMethod(uiThread = false)
-    public void initWithServerSTS(final String server, String endPoint, JSONObject configuration) {
-        mAuth.initWithServerSTS(server, endPoint, configuration);
+    public void initWithServerSTS(final String server, String endPoint, JSONObject configuration, JSONObject headers) {
+        mAuth.initWithServerSTS(server, endPoint, configuration, headers);
     }
 
     /**
@@ -99,8 +99,8 @@ public class OSSModule extends WXModule {
      * @param promise
      */
     @JSMethod(uiThread = false)
-    public void asyncUpload(String bucketName, String ossFile, String sourceFile,JSONObject options, final Promise promise) {
-        mUploadManager.asyncUpload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, ossFile, sourceFile, options, promise);
+    public void asyncUpload(String bucketName, String ossFile, String sourceFile,JSONObject options, JSCallback cb) {
+        mUploadManager.asyncUpload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, ossFile, sourceFile, options, cb);
     }
 
     /**

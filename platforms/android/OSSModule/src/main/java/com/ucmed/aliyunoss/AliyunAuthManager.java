@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Set;
 
 public class AliyunAuthManager {
     private OSS mOSS;
@@ -124,13 +125,17 @@ public class AliyunAuthManager {
      */
     public void initWithServerSTS(final String server,
                                   String endPoint,
-                                  JSONObject configuration) {
+                                  JSONObject configuration,final JSONObject requestHeader) {
         OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
             @Override
             public OSSFederationToken getFederationToken() {
                 try {
                     URL stsUrl = new URL(server);
                     HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
+                    Set<String> headers = requestHeader.keySet();
+                    for (String key : headers) {
+                        conn.setRequestProperty(key,requestHeader.getString(key));
+                    }
                     InputStream input = conn.getInputStream();
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
                     JSONObject jsonObjs = JSON.parseObject(jsonText);

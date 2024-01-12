@@ -35,6 +35,7 @@ import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.taobao.weex.bridge.JSCallback;
 import com.ucmed.aliyunoss.bridge.Promise;
+import com.ucmed.aliyunoss.bridge.PromiseImpl;
 import com.ucmed.aliyunoss.utils.FileUtils;
 
 import java.io.File;
@@ -65,9 +66,10 @@ public class AliyunUploadManager {
      * @param ossFile
      * @param sourceFile
      * @param options
-     * @param promise
+     * @param cb
      */
-    public void asyncUpload(final Context context, String bucketName, String ossFile, String sourceFile, JSONObject options, final Promise promise) {
+    public void asyncUpload(Context context, String bucketName, String ossFile, String sourceFile, JSONObject options, JSCallback cb) {
+        final Promise promise = new PromiseImpl(cb,cb);
         // Content to file:// start
         Uri selectedVideoUri = Uri.parse(sourceFile);
 
