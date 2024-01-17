@@ -305,7 +305,7 @@ public class OSSModule extends WXModule {
     /**
      * asyncListObjects WEEXMethod
      * @param bucketName
-     * @param prefix
+     * @param options
      * @param promise
      */
     @JSMethod(uiThread = false)
