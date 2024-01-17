@@ -39,6 +39,10 @@ public class AliyunAuthManager {
         mAuthListener = listener;
     }
 
+    public void setContext(Context context){
+        mContext = context;
+    }
+
     /**
      * inteface AuthListener
      */
@@ -132,17 +136,19 @@ public class AliyunAuthManager {
                 try {
                     URL stsUrl = new URL(server);
                     HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                     Set<String> headers = requestHeader.keySet();
                     for (String key : headers) {
                         conn.setRequestProperty(key,requestHeader.getString(key));
                     }
                     InputStream input = conn.getInputStream();
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-                    JSONObject jsonObjs = JSON.parseObject(jsonText);
-                    String ak = jsonObjs.getString("AccessKeyId");
-                    String sk = jsonObjs.getString("AccessKeySecret");
-                    String token = jsonObjs.getString("SecurityToken");
-                    String expiration = jsonObjs.getString("Expiration");
+                    JSONObject jsonObjs = JSON.parseObject(jsonText).getJSONObject("result");
+                    String ak = jsonObjs.getString("accessKeyId");
+                    String sk = jsonObjs.getString("accessKeySecret");
+                    String token = jsonObjs.getString("securityToken");
+                    String expiration = jsonObjs.getString("expiration");
                     return new OSSFederationToken(ak, sk, token, expiration);
                 } catch (Exception e) {
                     e.printStackTrace();

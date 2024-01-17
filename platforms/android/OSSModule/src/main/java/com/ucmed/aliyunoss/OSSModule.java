@@ -1,6 +1,7 @@
 package com.ucmed.aliyunoss;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
@@ -13,25 +14,56 @@ import java.util.HashMap;
 import io.reactivex.disposables.Disposable;
 
 
-public class OSSModule extends WXModule {
+ class OSSFactory{
+     private OSS mOSS;
+     private AliyunBucketManager mBucketManager;
+     private AliyunObjectManager mObjectManager;
+     private AliyunUploadManager mUploadManager;
+     private AliyunDownloadManager mDownloadManager;
+     private AliyunAuthManager mAuth;
+     private static OSSFactory instance;
 
-    private OSS mOSS;
-    private AliyunBucketManager mBucketManager;
-    private AliyunObjectManager mObjectManager;
-    private AliyunUploadManager mUploadManager;
-    private AliyunDownloadManager mDownloadManager;
-    private AliyunAuthManager mAuth;
+     private OSSFactory(){
+         mAuth = new AliyunAuthManager(null, new AliyunAuthManager.AuthListener() {
+             @Override
+             public void onAuthFinished(OSS oss) {
+                 init(oss);
+             }
+         });
+     }
 
-    public OSSModule(){
-        mAuth = new AliyunAuthManager(mWXSDKInstance.getContext(), new AliyunAuthManager.AuthListener() {
-            @Override
-            public void onAuthFinished(OSS oss) {
-                init(oss);
-            }
-        });
-    }
+     public static OSSFactory getInstance() {
+         if (instance == null) {
+             instance = new OSSFactory();
+         }
+         return instance;
+     }
 
-    /**
+     public AliyunAuthManager getAuth(){
+         return instance.mAuth;
+     }
+
+     public AliyunBucketManager getBucketManager(){
+         return instance.mBucketManager;
+     }
+
+     public AliyunObjectManager getObjectManager(){
+         return instance.mObjectManager;
+     }
+
+     public AliyunUploadManager getUploadManager(){
+         return instance.mUploadManager;
+     }
+
+     public AliyunDownloadManager getDownloadManager(){
+         return instance.mDownloadManager;
+     }
+
+     public OSS getOSS(){
+         return instance.mOSS;
+     }
+
+     /**
      * init oss
      * @param oss
      */
@@ -42,6 +74,20 @@ public class OSSModule extends WXModule {
         mUploadManager = new AliyunUploadManager(mOSS);
         mDownloadManager = new AliyunDownloadManager(mOSS);
     }
+}
+
+public class OSSModule extends WXModule {
+    private AliyunAuthManager mAuth;
+    private OSSFactory oss;
+    public OSSModule(){
+        this.init();
+    }
+
+    private void init() {
+        oss = OSSFactory.getInstance();
+        mAuth = oss.getAuth();
+    }
+
 
     /**
      * initWithSigner WEEXMethod
@@ -52,6 +98,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void initWithSigner(final String signature, final String accessKey, String endPoint, JSONObject configuration) {
+        mAuth.setContext(mWXSDKInstance.getContext());
         mAuth.initWithSigner(signature, accessKey, endPoint, configuration);
     }
 
@@ -64,6 +111,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void initWithPlainTextAccessKey(String accessKeyId, String accessKeySecret, String endPoint, JSONObject configuration) {
+        mAuth.setContext(mWXSDKInstance.getContext());
         mAuth.initWithPlainTextAccessKey(accessKeyId, accessKeySecret, endPoint, configuration);
     }
 
@@ -77,6 +125,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void initWithSecurityToken(String securityToken, String accessKeyId, String accessKeySecret, String endPoint, JSONObject configuration) {
+        mAuth.setContext(mWXSDKInstance.getContext());
         mAuth.initWithSecurityToken(securityToken, accessKeyId, accessKeySecret, endPoint, configuration);
     }
 
@@ -88,6 +137,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void initWithServerSTS(final String server, String endPoint, JSONObject configuration, JSONObject headers) {
+        mAuth.setContext(mWXSDKInstance.getContext());
         mAuth.initWithServerSTS(server, endPoint, configuration, headers);
     }
 
@@ -96,11 +146,11 @@ public class OSSModule extends WXModule {
      * @param bucketName
      * @param ossFile
      * @param sourceFile
-     * @param promise
+     * @param cb
      */
     @JSMethod(uiThread = false)
-    public void asyncUpload(String bucketName, String ossFile, String sourceFile,JSONObject options, JSCallback cb) {
-        mUploadManager.asyncUpload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, ossFile, sourceFile, options, cb);
+    public void asyncUpload(String bucketName, String ossFile, String sourceFile,JSCallback progress, JSCallback cb, JSONObject options) {
+        oss.getUploadManager().asyncUpload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, ossFile, sourceFile, cb, progress, options);
     }
 
     /**
@@ -113,7 +163,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncAppendObject(String bucketName,String objectKey,String uploadFilePath,JSONObject options,final Promise promise) {
-        mUploadManager.asyncAppendObject(mWXSDKInstance.getContext().getApplicationContext(),bucketName, objectKey, uploadFilePath, options, promise);
+        oss.getUploadManager().asyncAppendObject(mWXSDKInstance.getContext().getApplicationContext(),bucketName, objectKey, uploadFilePath, options, promise);
     }
 
     /**
@@ -126,7 +176,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncResumableUpload(String bucketName,String objectKey,String uploadFilePath,JSONObject options,final Promise promise) {
-        mUploadManager.asyncResumableUpload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, objectKey, uploadFilePath, options, promise);
+        oss.getUploadManager().asyncResumableUpload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, objectKey, uploadFilePath, options, promise);
     }
 
     /**
@@ -137,7 +187,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void initMultipartUpload(String bucketName,String objectKey,final Promise promise) {
-        mUploadManager.initMultipartUpload(bucketName, objectKey, promise);
+        oss.getUploadManager().initMultipartUpload(bucketName, objectKey, promise);
     }
 
     /**
@@ -151,7 +201,7 @@ public class OSSModule extends WXModule {
 //    @SuppressLint("LongLogTag")
     @JSMethod(uiThread = false)
     public void multipartUpload(String bucketName, String objectKey, String uploadId, String filepath, JSONObject options,final Promise promise) {
-        mUploadManager.multipartUpload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, objectKey, uploadId, filepath, options, promise);
+        oss.getUploadManager().multipartUpload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, objectKey, uploadId, filepath, options, promise);
     }
 
     /**
@@ -162,7 +212,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void abortMultipartUpload(String bucketName,String objectKey,String uploadId,final Promise promise) {
-        mUploadManager.abortMultipartUpload(bucketName, objectKey, uploadId, promise);
+        oss.getUploadManager().abortMultipartUpload(bucketName, objectKey, uploadId, promise);
     }
 
     /**
@@ -174,7 +224,19 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void listParts (String bucketName,String objectKey,String uploadId,final Promise promise) {
-        mUploadManager.listParts(bucketName, objectKey, uploadId, promise);
+        oss.getUploadManager().listParts(bucketName, objectKey, uploadId, promise);
+    }
+
+    /**
+     * generatePresignedUrl WEEXMethod
+     * @param bucketName
+     * @param objectKey
+     * @return
+     * @throws ClientException
+     */
+    @JSMethod(uiThread = false)
+    public String generatePresignedUrl(String bucketName,String objectKey,String x_oss_process ) throws ClientException {
+        return oss.getUploadManager().generatePresignedUrl(bucketName, objectKey, x_oss_process,60);
     }
 
     /**
@@ -187,7 +249,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncDownload(String bucketName, String ossFile, String updateDate,JSONObject options, final Promise promise) {
-        mDownloadManager.asyncDownload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, ossFile, updateDate, options, promise);
+        oss.getDownloadManager().asyncDownload(mWXSDKInstance.getContext().getApplicationContext(), bucketName, ossFile, updateDate, options, promise);
     }
     /**
      * createBucket WEEXMethod
@@ -198,7 +260,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncCreateBucket (String bucketName,String acl,String region,final Promise promise) {
-        mBucketManager.asyncCreateBucket(bucketName, acl, region, promise);
+        oss.getBucketManager().asyncCreateBucket(bucketName, acl, region, promise);
     }
 
     /**
@@ -208,7 +270,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncGetBucketACL (String bucketName,final Promise promise) {
-        mBucketManager.asyncGetBucketACL(bucketName,promise);
+        oss.getBucketManager().asyncGetBucketACL(bucketName,promise);
     }
 
     /**
@@ -217,7 +279,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncListBuckets(final Promise promise) {
-        mBucketManager.asyncListBuckets(promise);
+        oss.getBucketManager().asyncListBuckets(promise);
     }
     /**
      * async delet bucket WEEXMethod
@@ -226,7 +288,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncDeleteBucket(String bucketName,final Promise promise) {
-        mBucketManager.asyncDeleteBucket(bucketName,promise);
+        oss.getBucketManager().asyncDeleteBucket(bucketName,promise);
     }
 
     /**
@@ -237,7 +299,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncHeadObject(String bucketName,String objectKey,final Promise promise) {
-        mObjectManager.asyncHeadObject(bucketName,objectKey,promise);
+        oss.getObjectManager().asyncHeadObject(bucketName,objectKey,promise);
     }
 
     /**
@@ -248,7 +310,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncListObjects(String bucketName,JSONObject options,final Promise promise) {
-        mObjectManager.asyncListObjects(bucketName, options, promise);
+        oss.getObjectManager().asyncListObjects(bucketName, options, promise);
     }
 
     /**
@@ -263,7 +325,7 @@ public class OSSModule extends WXModule {
 
     @JSMethod(uiThread = false)
     public void asyncCopyObject (String srcBucketName,String srcObjectKey, String desBucketName, String destObjectKey,JSONObject options ,final Promise promise ) {
-        mObjectManager.asyncCopyObject(srcBucketName,srcObjectKey,desBucketName,destObjectKey,options,promise);
+        oss.getObjectManager().asyncCopyObject(srcBucketName,srcObjectKey,desBucketName,destObjectKey,options,promise);
     }
 
     /**
@@ -274,7 +336,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void doesObjectExist(String bucketName,String objectKey,final Promise promise) {
-        mObjectManager.doesObjectExist(bucketName,objectKey,promise);
+        oss.getObjectManager().doesObjectExist(bucketName,objectKey,promise);
     }
 
     /**
@@ -285,7 +347,7 @@ public class OSSModule extends WXModule {
      */
     @JSMethod(uiThread = false)
     public void asyncDeleteObject(String bucketName, String objectKey,final Promise promise) {
-        mObjectManager.asyncDeleteObject(bucketName, objectKey, promise);
+        oss.getObjectManager().asyncDeleteObject(bucketName, objectKey, promise);
     }
 
     @JSMethod(uiThread = false)

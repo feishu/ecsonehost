@@ -14,6 +14,7 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
@@ -21,6 +22,7 @@ import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -68,62 +70,53 @@ public class AliyunUploadManager {
      * @param options
      * @param cb
      */
-    public void asyncUpload(Context context, String bucketName, String ossFile, String sourceFile, JSONObject options, JSCallback cb) {
+    public void asyncUpload(Context context, final String bucketName, final String ossFile, String sourceFile, JSCallback cb, final JSCallback progress, JSONObject options ) {
         final Promise promise = new PromiseImpl(cb,cb);
-        // Content to file:// start
-        Uri selectedVideoUri = Uri.parse(sourceFile);
-
-        // 1. content uri -> file path
-        // 2. inputstream -> temp file path
-        Cursor cursor = null;
         try {
-            String[] proj = {MediaStore.Images.Media.DATA};
-            cursor = context.getContentResolver().query(selectedVideoUri, proj, null, null, null);
-            if (cursor == null) sourceFile = selectedVideoUri.getPath();
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            sourceFile = cursor.getString(column_index);
+            sourceFile = sourceFile.replace("file://","");
+            File file = new File(sourceFile);
+            byte[] fileData = FileUtils.readFile(file);
+            // init upload request
+            PutObjectRequest put = new PutObjectRequest(bucketName, ossFile, fileData);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType("application/octet-stream");
+            metadata.setHeader("x-oss-object-acl","public-read");
+            metadata.setContentDisposition("inline");
+            put.setMetadata(metadata);
+            // set callback
+            put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+                @Override
+                public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                    Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                    String str_currentSize = Long.toString(currentSize);
+                    String str_totalSize = Long.toString(totalSize);
+                    JSONObject onProgressValueData = new JSONObject();
+                    onProgressValueData.put("currentSize", str_currentSize);
+                    onProgressValueData.put("totalSize", str_totalSize);
+                    if(progress!=null)progress.invokeAndKeepAlive(onProgressValueData);
+                }
+            });
+
+            OSSAsyncTask task = mOSS.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
+                @Override
+                public void onSuccess(PutObjectRequest request, PutObjectResult result) {
+                    Log.d("PutObject", "UploadSuccess");
+                    Log.d("ETag", result.getETag());
+                    Log.d("RequestId", result.getRequestId());
+                    JSONObject map = new JSONObject();
+                    map.put("status","onComplete");
+                    map.put("ObjectId", result.getRequestId());
+                    promise.resolve(map);
+                }
+
+                @Override
+                public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+                    PromiseExceptionManager.resolvePromiseException(clientExcepion,serviceException,promise);
+                }
+            });
         } catch (Exception e) {
-            sourceFile = FileUtils.getFilePathFromURI((Activity)context, selectedVideoUri);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+           promise.reject(e);
         }
-        // init upload request
-        PutObjectRequest put = new PutObjectRequest(bucketName, ossFile, sourceFile);
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType("application/octet-stream");
-        put.setMetadata(metadata);
-        final JSCallback progressCB = (JSCallback) options.get("on-progress");
-        // set callback
-        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
-            @Override
-            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
-                String str_currentSize = Long.toString(currentSize);
-                String str_totalSize = Long.toString(totalSize);
-                JSONObject onProgressValueData = new JSONObject();
-                onProgressValueData.put("currentSize", str_currentSize);
-                onProgressValueData.put("totalSize", str_totalSize);
-                if(progressCB!=null)progressCB.invokeAndKeepAlive(onProgressValueData);
-            }
-        });
-
-        OSSAsyncTask task = mOSS.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
-            @Override
-            public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
-                Log.d("ETag", result.getETag());
-                Log.d("RequestId", result.getRequestId());
-                promise.resolve("UploadSuccess");
-            }
-
-            @Override
-            public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                PromiseExceptionManager.resolvePromiseException(clientExcepion,serviceException,promise);
-            }
-        });
         Log.d("AliyunOSS", "OSS uploadObjectAsync ok!");
     }
 
@@ -402,5 +395,24 @@ public class AliyunUploadManager {
             listPartsData.put("partSize"+i,result.getParts().get(i).getSize());
         }
         promise.resolve(listPartsData);
+    }
+
+    /**
+     * 生成图片临时URL地址（默认30分钟）
+     * @param bucketName
+     * @param objectKey
+     * @param expiration
+     * @param x_oss_process
+     * @return
+     * @throws ClientException
+     */
+    public String generatePresignedUrl(String bucketName,String objectKey, String x_oss_process, long expiration) throws ClientException {
+        if(expiration==0L){
+            expiration = 30;
+        }
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, objectKey);
+        request.setExpiration(expiration * 60);
+        if(x_oss_process !=null) request.setProcess(x_oss_process);
+        return mOSS.presignConstrainedObjectURL(request);
     }
 }
