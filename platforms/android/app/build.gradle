@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'net.linguica.maven-settings'
 
 repositories {
@@ -23,8 +24,8 @@ android {
         applicationId "com.lzx.ecsone"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 53
-        versionName "3.0.10"
+        versionCode 60
+        versionName "3.0.15"
         ndk {
             abiFilters "armeabi-v7a", "x86_64" //, "arm64-v8a"//"x86"
         }
@@ -71,12 +72,15 @@ dependencies {
     }
 
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
-    api 'com.lelibrary.androidlelibrary:visioniot:9.3'
+    api ('com.lelibrary.androidlelibrary:visioniot:9.3'){
+        exclude group:'com.bugfender.sdk'
+    }
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.github.azhon:AppUpdate:4.0.0'
     implementation 'com.beust:klaxon:5.5'
+//    implementation 'com.bugfender.sdk:android:3.+'
     implementation project(':BTModule')
     implementation project(':WeexChartLib')
     implementation project(':weexextra')
