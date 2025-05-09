@@ -1,0 +1,10 @@
+#Thu Feb 02 09:15:55 CST 2023
+base.2=/Users/L/Desktop/LWork/LAN/ECSOne/weexboxHost/platforms/android/app/build/intermediates/transforms/dexMerger/release/0
+path.2=classes3.dex
+base.1=/Users/L/Desktop/LWork/LAN/ECSOne/weexboxHost/platforms/android/app/build/intermediates/transforms/dexMerger/release/0
+path.1=classes2.dex
+base.0=/Users/L/Desktop/LWork/LAN/ECSOne/weexboxHost/platforms/android/app/build/intermediates/transforms/dexMerger/release/0
+renamed.2=classes3.dex
+renamed.1=classes2.dex
+renamed.0=classes.dex
+path.0=classes.dex
