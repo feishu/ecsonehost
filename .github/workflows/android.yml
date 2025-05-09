@@ -25,18 +25,13 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Decode Keystore
-      run: |
-        echo "${{ secrets.ANDROID_SIGNING_KEY_STORE_BASE64 }}" | base64 --decode > ${{ github.workspace }}/app/release.jks
-      shell: bash
-
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
       working-directory: ${{ github.workspace }}
 
     - name: Build with Gradle
       env:
-        ANDROID_SIGNING_KEY_STORE_FILE: ${{ github.workspace }}/app/release.jks
+        ANDROID_SIGNING_KEY_STORE_FILE: ${{ github.workspace }}/app/ecsone.jks
         ANDROID_KEY_STORE_PASSWORD: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
         ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
