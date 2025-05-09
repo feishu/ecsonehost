@@ -2,14 +2,24 @@
 
 buildscript {
     repositories {
-//        google()
         maven {
             url ' https://dl.google.com/dl/android/maven2/'
             name 'Google'
         }
-//        jcenter()
         google()
         mavenCentral()
+
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/"}
+        maven {
+            url 'https://maven.fabric.io/public'
+        }
+        maven { url 'https://api.xposed.info/' }
+        maven { url 'https://repo.xposed.info/' }
+        maven { url 'https://jitpack.io' }
         maven {
             url 'https://plugins.gradle.org/m2/'
         }
@@ -28,8 +38,6 @@ buildscript {
 
 allprojects {
     repositories {
-//        maven { url "http://192.168.0.121:8081/repository/maven-releases/" }
-//        google()
         maven {
             url ' https://dl.google.com/dl/android/maven2'
             name 'Google'
@@ -37,6 +45,17 @@ allprojects {
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/"}
+        maven {
+            url 'https://maven.fabric.io/public'
+        }
+        maven { url 'https://api.xposed.info/' }
+        maven { url 'https://repo.xposed.info/' }
+        maven { url 'https://jitpack.io' }
     }
 }
 
