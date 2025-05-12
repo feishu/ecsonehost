@@ -13,10 +13,7 @@ buildscript {
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        // maven { 
-        //             url "http://maven.aliyun.com/nexus/content/groups/public/"
-        //             allowInsecureProtocol = true
-        // }
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/"}
         maven {
             url 'https://maven.fabric.io/public'
         }
@@ -29,9 +26,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.1'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.0"
-        classpath "io.realm:realm-gradle-plugin:5.3.0"
+        classpath "io.realm:realm-gradle-plugin:10.15.1"
         classpath 'net.linguica.gradle:maven-settings-plugin:0.5'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -52,10 +49,7 @@ allprojects {
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        // maven { 
-        //     url "http://maven.aliyun.com/nexus/content/groups/public/"
-        //     allowInsecureProtocol = true
-        // }
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/"}
         maven {
             url 'https://maven.fabric.io/public'
         }
@@ -69,8 +63,8 @@ subprojects {
     ext {
         kotlin_version = '1.6.0'
         fastjsonLibVersion = "1.1.70.android"
-        weexSDKVersion = "0.28.0"
-        TeslaWeexSDK = "com.taobao.android:weex_sdk:0.28.0"
+        weexSDKVersion = "0.18.0-beta-3"
+        TeslaWeexSDK = "com.taobao.android:weex_sdk:0.24.0"
     }
 }
 
