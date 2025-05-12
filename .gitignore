@@ -1,6 +1,8 @@
 package-lock.json
 .editorconfig
 
+.gradle
+
 # Logs
 logs
 *.log
